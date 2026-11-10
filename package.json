@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "importer": "tsx --env-file=.env --tsconfig tsconfig.json scripts/importer.ts"
+    "importer": "tsx --env-file=.env --tsconfig tsconfig.json scripts/importer.ts",
+    "prisagent": "tsx --env-file=.env --tsconfig tsconfig.json scripts/prisagent.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.7.0",

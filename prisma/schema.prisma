@@ -50,6 +50,7 @@ model Tilbud {
   befaringId  Int
   status      String         @default("UTKAST") // UTKAST | GODKJENT | SENDT | AKSEPTERT | AVSLATT
   begrunnelse String?        // agentens forklaring på prisen
+  grunnlag    String?        // JSON: hvilke fakturaer prisen bygger på + forutsetninger
   opprettet   DateTime       @default(now())
   sendt       DateTime?
   linjer      Tilbudslinje[]

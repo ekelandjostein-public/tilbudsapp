@@ -7,10 +7,10 @@
 //  4. Vi REGNER UT totalen selv fra linjene, i stedet for å stole på summen i PDF-en,
 //     og lagrer alt i databasen.
 
-import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { claude, MODELL } from "@/lib/claude";
 
 const Linje = z.object({
   type: z
@@ -47,15 +47,10 @@ Tall skrives på norsk med komma som desimaltegn og mellomrom som tusenskille: �
 Beskrivelser kan gå over to linjer i PDF-en – slå dem sammen.
 Vær forsiktig med «Å betale»-summer: en sum nederst på en side hører ikke nødvendigvis til alle fakturaene på siden.`;
 
-// TILBUD_API_KEY brukes i skyøkter, der plattformen fjerner ANTHROPIC_API_KEY.
-const client = new Anthropic({
-  apiKey: process.env.TILBUD_API_KEY || process.env.ANTHROPIC_API_KEY,
-});
-
 /** Leser alle fakturaene i én PDF med Claude. */
 export async function lesFakturaPdf(pdf: Buffer): Promise<LestFaktura[]> {
-  const svar = await client.beta.messages.parse({
-    model: "claude-opus-5-5",
+  const svar = await claude.beta.messages.parse({
+    model: MODELL,
     max_tokens: 16000,
     output_config: { effort: "low", format: betaZodOutputFormat(Svar) },
     // Hvis modellen avslår forespørselen, prøver API-et automatisk en annen modell

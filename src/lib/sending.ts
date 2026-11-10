@@ -7,6 +7,16 @@
 //                     onboarding@resend.dev, og da kan du bare sende til din egen adresse.
 //   TEST_EPOST      – adressen «Send test til meg» sender til
 
+import { EnvHttpProxyAgent, fetch as undiciFetch } from "undici";
+
+// Bak en proxy (f.eks. i Claude Code-skyøkter) må forespørselen gå via proxyen.
+// Node sin innebygde fetch gjør ikke det av seg selv, så da bruker vi undici med proxy.
+const brukProxy = !!(process.env.HTTPS_PROXY || process.env.https_proxy);
+const hent = brukProxy
+  ? (url: string, init: Parameters<typeof undiciFetch>[1]) =>
+      undiciFetch(url, { ...init, dispatcher: new EnvHttpProxyAgent() })
+  : (url: string, init: Parameters<typeof undiciFetch>[1]) => undiciFetch(url, init);
+
 export type Vedlegg = { filnavn: string; innhold: Uint8Array };
 
 export type Epost = {
@@ -26,9 +36,9 @@ export async function sendEpost(e: Epost): Promise<string> {
   if (!nokkel) throw new Error("RESEND_API_KEY mangler – se .env.example.");
   const fra = process.env.EPOST_FRA?.trim() || "onboarding@resend.dev";
 
-  let svar: Response;
+  let svar: Awaited<ReturnType<typeof undiciFetch>>;
   try {
-    svar = await fetch("https://api.resend.com/emails", {
+    svar = await hent("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${nokkel}`, "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -37,8 +37,8 @@ prosessen på norsk, steg for steg.
 
 ## E-post (Resend)
 - Innstillinger i `.env`: `RESEND_API_KEY`, `EPOST_FRA` (onboarding@resend.dev uten eget domene), `TEST_EPOST`
-- I skyøkter legger nettverket inn nøkkelen selv: bruk `RESEND_API_KEY=proxy-injected`, og start
-  appen med `NODE_USE_ENV_PROXY=1 npm run dev` (ellers når ikke Node ut til api.resend.com)
+- I skyøkter legger nettverket inn nøkkelen selv (`RESEND_API_KEY=proxy-injected` er satt i
+  miljøet). Sendingen bruker undici med proxy når `HTTPS_PROXY` finnes.
 
 ## Kjent om eksempelfakturaene
 `fakturaer/20_fakturaer.pdf` har 2 fakturaer per side, men bare én «Å betale»-sum

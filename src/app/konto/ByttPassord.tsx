@@ -1,34 +1,26 @@
 "use client";
 import { useActionState } from "react";
+import { Varsel } from "@/components/ui";
 import { byttPassord, type PassordTilstand } from "./actions";
 
 export default function ByttPassord() {
   const [t, sendInn, sender] = useActionState<PassordTilstand, FormData>(byttPassord, {});
   return (
-    <form action={sendInn} className="mt-3 space-y-3">
+    <form action={sendInn} className="space-y-4">
       {[
         ["naa", "Nåværende passord", "current-password"],
-        ["nytt", "Nytt passord (minst 10 tegn)", "new-password"],
+        ["nytt", "Nytt passord", "new-password"],
         ["gjenta", "Gjenta nytt passord", "new-password"],
       ].map(([navn, etikett, auto]) => (
         <label key={navn} className="block">
-          <span className="text-sm font-medium">{etikett}</span>
-          <input
-            name={navn}
-            type="password"
-            autoComplete={auto}
-            required
-            className="mt-1 w-full rounded-lg border p-3 text-base"
-          />
+          <span className="etikett">{etikett}</span>
+          <input name={navn} type="password" autoComplete={auto} required className="felt" />
+          {navn === "nytt" && <span className="hjelpetekst mt-1 block">Minst 10 tegn</span>}
         </label>
       ))}
-      {t.feil && <p className="text-sm text-red-600">{t.feil}</p>}
-      {t.ok && <p className="text-sm text-green-700">✓ Passordet er byttet. Du er logget ut på andre enheter.</p>}
-      <button
-        type="submit"
-        disabled={sender}
-        className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white disabled:opacity-50"
-      >
+      {t.feil && <p className="feiltekst">{t.feil}</p>}
+      {t.ok && <Varsel type="suksess">Passordet er byttet. Du er logget ut på andre enheter.</Varsel>}
+      <button type="submit" disabled={sender} className="knapp knapp-hoved w-full">
         {sender ? "Lagrer …" : "Bytt passord"}
       </button>
     </form>

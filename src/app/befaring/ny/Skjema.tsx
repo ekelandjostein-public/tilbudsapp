@@ -13,46 +13,38 @@ export default function Skjema({ iDag }: { iDag: string }) {
   const f = tilstand.feil ?? {};
 
   return (
-    <form action={sendInn} className="mt-6 space-y-5" noValidate>
-      <fieldset className="space-y-4">
-        <legend className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Kunde
-        </legend>
+    <form action={sendInn} className="space-y-6" noValidate>
+      <fieldset className="kort space-y-5 p-5">
+        <legend className="seksjonstittel float-left mb-3 w-full">Kunde</legend>
         <Felt navn="navn" etikett="Navn" feil={f.navn} standard={v.navn} autoComplete="name" />
         <Felt navn="adresse" etikett="Adresse" feil={f.adresse} standard={v.adresse} autoComplete="street-address" />
-        <Felt navn="telefon" etikett="Telefon" type="tel" feil={f.telefon} standard={v.telefon} autoComplete="tel" valgfritt />
-        <Felt navn="epost" etikett="E-post" type="email" feil={f.epost} standard={v.epost} autoComplete="email" />
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Felt navn="telefon" etikett="Telefon" type="tel" feil={f.telefon} standard={v.telefon} autoComplete="tel" valgfritt />
+          <Felt navn="epost" etikett="E-post" type="email" feil={f.epost} standard={v.epost} autoComplete="email" />
+        </div>
       </fieldset>
 
-      <fieldset className="space-y-4">
-        <legend className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Jobben
-        </legend>
+      <fieldset className="kort space-y-5 p-5">
+        <legend className="seksjonstittel float-left mb-3 w-full">Jobben</legend>
         <Felt navn="dato" etikett="Dato for befaring" type="date" feil={f.dato} standard={v.dato ?? iDag} />
         <div>
-          <label htmlFor="arbeidsbeskrivelse" className="block font-medium">
+          <label htmlFor="arbeidsbeskrivelse" className="etikett">
             Arbeidsbeskrivelse
           </label>
-          <p className="text-sm text-gray-500">
-            Hva skal gjøres? Ta med mål, antall punkter, spesielle forhold osv.
-          </p>
+          <p className="hjelpetekst mt-0.5">Hva skal gjøres? Ta med mål, antall punkter og spesielle forhold.</p>
           <textarea
             id="arbeidsbeskrivelse"
             name="arbeidsbeskrivelse"
             rows={6}
             defaultValue={v.arbeidsbeskrivelse}
             placeholder="F.eks.: Montere elbillader i garasje, ca. 12 m kabel fra sikringsskap. Trenger ny jordfeilautomat."
-            className="mt-1 w-full rounded-lg border p-3 text-base"
+            className={`felt resize-y ${f.arbeidsbeskrivelse ? "felt-feil" : ""}`}
           />
-          {f.arbeidsbeskrivelse && <Feil tekst={f.arbeidsbeskrivelse} />}
+          {f.arbeidsbeskrivelse && <p className="feiltekst">{f.arbeidsbeskrivelse}</p>}
         </div>
       </fieldset>
 
-      <button
-        type="submit"
-        disabled={sender}
-        className="w-full rounded-lg bg-blue-600 py-4 text-lg font-semibold text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={sender} className="knapp knapp-hoved knapp-stor w-full">
         {sender ? "Lagrer …" : "Lagre befaring"}
       </button>
     </form>
@@ -70,9 +62,9 @@ function Felt(props: {
 }) {
   return (
     <div>
-      <label htmlFor={props.navn} className="block font-medium">
+      <label htmlFor={props.navn} className="etikett">
         {props.etikett}
-        {props.valgfritt && <span className="font-normal text-gray-400"> (valgfritt)</span>}
+        {props.valgfritt && <span className="font-normal text-zinc-400"> · valgfritt</span>}
       </label>
       <input
         id={props.navn}
@@ -80,13 +72,9 @@ function Felt(props: {
         type={props.type ?? "text"}
         defaultValue={props.standard}
         autoComplete={props.autoComplete}
-        className="mt-1 w-full rounded-lg border p-3 text-base"
+        className={`felt ${props.feil ? "felt-feil" : ""}`}
       />
-      {props.feil && <Feil tekst={props.feil} />}
+      {props.feil && <p className="feiltekst">{props.feil}</p>}
     </div>
   );
-}
-
-function Feil({ tekst }: { tekst: string }) {
-  return <p className="mt-1 text-sm text-red-600">{tekst}</p>;
 }

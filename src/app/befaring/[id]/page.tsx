@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { krevBruker } from "@/lib/innlogging";
-import { STATUS_NAVN } from "@/lib/tilbud";
+import { sumEksMva } from "@/lib/fakturaleser";
+import { kr } from "@/lib/tilbud";
+import { Pil, Seksjon, Side, StatusMerke } from "@/components/ui";
 import GenererKnapp from "@/app/tilbud/GenererKnapp";
 
 export default async function VisBefaring({
@@ -14,53 +16,80 @@ export default async function VisBefaring({
   const { id } = await params;
   const befaring = await db.befaring.findUnique({
     where: { id: Number(id) },
-    include: { kunde: true, opprettetAv: true, tilbud: { orderBy: { opprettet: "desc" } } },
+    include: {
+      kunde: true,
+      opprettetAv: true,
+      tilbud: { orderBy: { opprettet: "desc" }, include: { linjer: true } },
+    },
   });
   if (!befaring) notFound();
   const { kunde } = befaring;
 
   return (
-    <main className="mx-auto max-w-md p-6">
-      <Link href="/" className="text-sm text-blue-600">← Alle befaringer</Link>
-      <h1 className="mt-2 text-2xl font-bold">Befaring hos {kunde.navn}</h1>
-      <p className="text-gray-500">
-        {befaring.dato.toLocaleDateString("nb-NO")}
-        {befaring.opprettetAv && ` · registrert av ${befaring.opprettetAv.navn}`}
-      </p>
+    <Side
+      tilbake={{ href: "/", tekst: "Oversikt" }}
+      tittel={kunde.navn}
+      undertittel={
+        <>
+          Befaring {befaring.dato.toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" })}
+          {befaring.opprettetAv && ` · ${befaring.opprettetAv.navn}`}
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <Seksjon tittel="Kunde">
+          <dl className="grid grid-cols-[5.5rem_1fr] gap-y-2 text-[15px]">
+            <dt className="text-zinc-500">Adresse</dt>
+            <dd>{kunde.adresse}</dd>
+            {kunde.telefon && (
+              <>
+                <dt className="text-zinc-500">Telefon</dt>
+                <dd>
+                  <a href={`tel:${kunde.telefon.replace(/\s/g, "")}`} className="lenke">
+                    {kunde.telefon}
+                  </a>
+                </dd>
+              </>
+            )}
+            <dt className="text-zinc-500">E-post</dt>
+            <dd className="truncate">{kunde.epost}</dd>
+          </dl>
+        </Seksjon>
 
-      <section className="mt-6 rounded-lg border p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Kunde</h2>
-        <p className="mt-2">{kunde.adresse}</p>
-        {kunde.telefon && <p>{kunde.telefon}</p>}
-        <p>{kunde.epost}</p>
-      </section>
+        <Seksjon tittel="Arbeidsbeskrivelse">
+          <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{befaring.arbeidsbeskrivelse}</p>
+        </Seksjon>
 
-      <section className="mt-4 rounded-lg border p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Arbeidsbeskrivelse
-        </h2>
-        <p className="mt-2 whitespace-pre-wrap">{befaring.arbeidsbeskrivelse}</p>
-      </section>
-
-      {befaring.tilbud.length > 0 && (
-        <section className="mt-4 rounded-lg border p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Tilbud</h2>
-          <ul className="mt-2 space-y-1">
-            {befaring.tilbud.map((t) => (
-              <li key={t.id}>
-                <Link href={`/tilbud/${t.id}`} className="text-blue-600">
-                  Tilbud #{t.id} · {STATUS_NAVN[t.status] ?? t.status} · {t.opprettet.toLocaleDateString("nb-NO")}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+        {befaring.tilbud.length > 0 && (
+          <Seksjon tittel="Tilbud" innrykk={false}>
+            <ul className="divide-y divide-zinc-100 border-t border-zinc-100">
+              {befaring.tilbud.map((t) => (
+                <li key={t.id}>
+                  <Link
+                    href={`/tilbud/${t.id}`}
+                    className="group flex items-center gap-3 px-5 py-3.5 transition hover:bg-zinc-50"
+                  >
+                    <span className="font-medium">Tilbud {t.id}</span>
+                    <StatusMerke status={t.status} />
+                    <span className="tall ml-auto text-sm text-zinc-500">
+                      {kr(sumEksMva(t.linjer) * 1.25)} kr
+                    </span>
+                    <span className="text-zinc-400 group-hover:text-zinc-900">
+                      <Pil />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Seksjon>
+        )}
+      </div>
 
       <GenererKnapp
         befaringId={befaring.id}
         tekst={befaring.tilbud.length > 0 ? "Lag nytt tilbudsutkast" : "Generer tilbud"}
+        sekundaer={befaring.tilbud.length > 0}
       />
-    </main>
+    </Side>
   );
 }

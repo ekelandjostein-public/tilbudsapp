@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { db } from "@/lib/db";
 import { krevAdmin } from "@/lib/innlogging";
+import { Side } from "@/components/ui";
 import Administrasjon from "./Administrasjon";
 
 export default async function Brukere() {
@@ -12,11 +12,12 @@ export default async function Brukere() {
   });
 
   return (
-    <main className="mx-auto max-w-md p-6">
-      <Link href="/" className="text-sm text-blue-600">← Tilbake</Link>
-      <h1 className="mt-2 text-2xl font-bold">Brukere</h1>
-      <p className="text-gray-500">Alle her ser de samme kundene, befaringene og tilbudene.</p>
+    <Side
+      tilbake={{ href: "/", tekst: "Oversikt" }}
+      tittel="Brukere"
+      undertittel="Alle her ser de samme kundene, befaringene og tilbudene."
+    >
       <Administrasjon brukere={brukere} megId={admin.id} />
-    </main>
+    </Side>
   );
 }

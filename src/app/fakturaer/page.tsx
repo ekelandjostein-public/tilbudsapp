@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { db } from "@/lib/db";
 import { krevBruker } from "@/lib/innlogging";
+import { TYPE_NAVN, kr } from "@/lib/tilbud";
+import { Side } from "@/components/ui";
 import Opplasting from "./Opplasting";
-
-const kr = (n: number) => n.toLocaleString("nb-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default async function Fakturaer() {
   await krevBruker();
@@ -13,43 +12,41 @@ export default async function Fakturaer() {
   });
 
   return (
-    <main className="mx-auto max-w-md p-6">
-      <Link href="/" className="text-sm text-blue-600">← Tilbake</Link>
-      <h1 className="mt-2 text-2xl font-bold">Tidligere fakturaer</h1>
-      <p className="text-gray-500">Prisagenten lærer priser fra disse.</p>
-
+    <Side
+      tilbake={{ href: "/", tekst: "Oversikt" }}
+      tittel="Tidligere fakturaer"
+      undertittel="Prisagenten lærer priser, timer og materiell fra disse."
+    >
       <Opplasting />
 
-      <ul className="mt-6 space-y-3">
+      <h2 className="seksjonstittel mt-10 mb-3 px-1">{fakturaer.length} fakturaer</h2>
+      <ul className="kort divide-y divide-zinc-100 overflow-hidden">
         {fakturaer.map((f) => (
-          <li key={f.id} className="rounded-lg border">
-            <details>
-              <summary className="cursor-pointer p-4">
-                <div className="flex justify-between gap-2">
-                  <span className="font-medium">#{f.fakturanr ?? "?"}</span>
-                  <span>{kr(f.totalEksMva)} kr <span className="text-xs text-gray-500">eks. mva</span></span>
-                </div>
-                <p className="text-sm text-gray-500">{f.arbeidsbeskrivelse}</p>
+          <li key={f.id}>
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-start gap-4 px-5 py-4 transition select-none hover:bg-zinc-50 [&::-webkit-details-marker]:hidden">
+                <span className="tall mt-0.5 w-11 shrink-0 text-sm text-zinc-400">{f.fakturanr ?? "–"}</span>
+                <span className="min-w-0 flex-1 text-[15px] leading-snug">{f.arbeidsbeskrivelse}</span>
+                <span className="tall shrink-0 text-[15px] font-medium whitespace-nowrap">{kr(f.totalEksMva)}</span>
               </summary>
-              <table className="w-full border-t text-sm">
-                <tbody>
-                  {f.linjer.map((l) => (
-                    <tr key={l.id} className="border-b last:border-0">
-                      <td className="p-2">
-                        {l.beskrivelse}
-                        <div className="text-xs text-gray-500">
-                          {l.type} · {l.antall} {l.enhet} × {kr(l.enhetspris)}
-                        </div>
-                      </td>
-                      <td className="p-2 text-right whitespace-nowrap">{kr(l.antall * l.enhetspris)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <ul className="space-y-2 bg-zinc-50/70 px-5 py-4 pl-20 text-sm">
+                {f.linjer.map((l) => (
+                  <li key={l.id} className="flex gap-4">
+                    <div className="min-w-0 flex-1">
+                      <p>{l.beskrivelse}</p>
+                      <p className="tall text-xs text-zinc-500">
+                        {TYPE_NAVN[l.type] ?? l.type} · {l.antall.toLocaleString("nb-NO")} {l.enhet} × {kr(l.enhetspris)}
+                      </p>
+                    </div>
+                    <span className="tall whitespace-nowrap text-zinc-600">{kr(l.antall * l.enhetspris)}</span>
+                  </li>
+                ))}
+              </ul>
             </details>
           </li>
         ))}
       </ul>
-    </main>
+      <p className="mt-3 px-1 text-xs text-zinc-400">Alle beløp er eks. mva. Trykk på en faktura for å se linjene.</p>
+    </Side>
   );
 }

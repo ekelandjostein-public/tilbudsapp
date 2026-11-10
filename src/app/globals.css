@@ -1,26 +1,100 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Designsystemet til tilbudsappen.
+ * Alle farger, knapper, felt og kort er definert her, så hele appen ser lik ut.
+ * Vil du endre utseendet, er dette stedet å starte.
+ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  /* Bakgrunn: varm off-white, som godt papir */
+  --color-papir: #f6f5f1;
+  /* Aksentfarge: messing – brukes sparsomt (logo, fokus, små detaljer) */
+  --color-messing-50: #faf6ec;
+  --color-messing-100: #f2e8cf;
+  --color-messing-400: #c9a35a;
+  --color-messing-500: #b08a3e;
+  --color-messing-600: #8f6f30;
+  --color-messing-700: #6f5626;
+}
+
+/* Appen er laget for lyst tema – hindrer at mørk modus på maskinen gir svart bakgrunn */
+:root {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-papir font-sans text-zinc-900 antialiased;
+  font-feature-settings: "cv11", "ss01";
+}
+
+::selection {
+  @apply bg-messing-100;
+}
+
+@layer components {
+  /* Kort: hvite flater med fin kant og myk skygge */
+  .kort {
+    @apply rounded-2xl border border-zinc-200/80 bg-white shadow-[0_1px_2px_rgba(24,24,27,0.04),0_8px_24px_-12px_rgba(24,24,27,0.08)];
+  }
+
+  /* Små overskrifter over seksjoner */
+  .seksjonstittel {
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500;
+  }
+
+  /* Knapper: bruk «knapp» + en variant, f.eks. className="knapp knapp-hoved" */
+  .knapp {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[15px] font-medium tracking-[-0.01em] transition duration-150 select-none;
+    @apply focus-visible:ring-2 focus-visible:ring-messing-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-papir focus-visible:outline-none;
+    @apply active:scale-[0.985] disabled:pointer-events-none disabled:opacity-45;
+  }
+  .knapp-hoved {
+    @apply bg-zinc-900 text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_1px_2px_rgba(0,0,0,0.2)] hover:bg-zinc-800;
+  }
+  .knapp-sekundaer {
+    @apply border border-zinc-300 bg-white text-zinc-900 shadow-xs hover:border-zinc-400 hover:bg-zinc-50;
+  }
+  .knapp-stille {
+    @apply px-3 py-2 text-zinc-600 hover:bg-zinc-900/5 hover:text-zinc-900;
+  }
+  .knapp-fare {
+    @apply px-3 py-2 text-red-700 hover:bg-red-50;
+  }
+  .knapp-stor {
+    @apply py-4 text-base;
+  }
+
+  /* Skjemafelt */
+  .etikett {
+    @apply block text-sm font-medium text-zinc-800;
+  }
+  .hjelpetekst {
+    @apply text-sm text-zinc-500;
+  }
+  .felt {
+    @apply mt-1.5 block w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-3 text-base text-zinc-900 shadow-xs transition;
+    @apply placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/8 focus:outline-none;
+  }
+  .felt-feil {
+    @apply border-red-400 bg-red-50/40 focus:border-red-500 focus:ring-red-500/10;
+  }
+  .feiltekst {
+    @apply mt-1.5 text-sm text-red-700;
+  }
+
+  /* Lenker i tekst */
+  .lenke {
+    @apply font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-4 transition hover:decoration-zinc-900;
+  }
+
+  /* Tall som står pent under hverandre (beløp) */
+  .tall {
+    font-variant-numeric: tabular-nums;
+  }
 }

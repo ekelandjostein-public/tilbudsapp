@@ -1,5 +1,6 @@
 "use client";
 import { useActionState, useState, useTransition } from "react";
+import { Varsel } from "@/components/ui";
 import { fjernBruker, leggTilBruker, nyttPassordFor, type BrukerTilstand } from "./actions";
 
 type Bruker = { id: number; navn: string; epost: string; rolle: string };
@@ -18,77 +19,92 @@ export default function Administrasjon({ brukere, megId }: { brukere: Bruker[]; 
   return (
     <>
       {visPassord && (
-        <div className="mt-6 rounded-lg border border-green-300 bg-green-50 p-4 text-sm">
-          <p className="font-semibold text-green-900">Midlertidig passord for {visPassord.navn}</p>
-          <p className="mt-2">E-post: {visPassord.epost}</p>
-          <p>
-            Passord: <code className="rounded bg-white px-2 py-1 text-base">{visPassord.passord}</code>
+        <Varsel type="suksess" tittel={`Midlertidig passord for ${visPassord.navn}`} className="mb-6">
+          <p className="text-emerald-800">{visPassord.epost}</p>
+          <code className="tall mt-2 inline-block rounded-lg bg-white px-3 py-1.5 font-mono text-base tracking-wide text-zinc-900 ring-1 ring-emerald-200">
+            {visPassord.passord}
+          </code>
+          <p className="mt-3">
+            Gi det til {visPassord.navn} på en trygg måte, for eksempel muntlig eller på SMS. Det
+            vises bare nå. Be dem bytte passord under «Min konto» etter første innlogging.
           </p>
-          <p className="mt-2 text-green-900">
-            Gi dette til {visPassord.navn} på en trygg måte (f.eks. muntlig eller SMS). Det vises
-            bare nå. Be dem bytte passord under «Min konto» etter første innlogging.
-          </p>
-        </div>
+        </Varsel>
       )}
-      {radsvar.feil && <p className="mt-4 text-sm text-red-600">{radsvar.feil}</p>}
+      {radsvar.feil && (
+        <Varsel type="feil" className="mb-6">
+          {radsvar.feil}
+        </Varsel>
+      )}
 
-      <ul className="mt-6 divide-y rounded-lg border">
+      <ul className="kort divide-y divide-zinc-100 overflow-hidden">
         {brukere.map((b) => (
-          <li key={b.id} className="p-4">
-            <div className="flex justify-between gap-2">
-              <span className="font-medium">
-                {b.navn} {b.id === megId && <span className="text-gray-400">(deg)</span>}
-              </span>
-              <span className="text-sm text-gray-500">{b.rolle === "ADMIN" ? "Administrator" : "Ansatt"}</span>
+          <li key={b.id} className="flex items-center gap-3.5 px-5 py-4">
+            <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-sm font-semibold text-zinc-600">
+              {b.navn.trim()[0]?.toUpperCase()}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium">
+                {b.navn} {b.id === megId && <span className="font-normal text-zinc-400">· deg</span>}
+              </p>
+              <p className="truncate text-sm text-zinc-500">
+                {b.epost} · {b.rolle === "ADMIN" ? "Administrator" : "Ansatt"}
+              </p>
+              {b.id !== megId && (
+                <div className="mt-1.5 -ml-3 flex">
+                  <button
+                    disabled={jobber}
+                    onClick={() => kjor(() => nyttPassordFor(b.id))}
+                    className="knapp knapp-stille py-1 text-xs"
+                  >
+                    Lag nytt passord
+                  </button>
+                  <button
+                    disabled={jobber}
+                    onClick={() => {
+                      if (confirm(`Fjerne ${b.navn}? De kan ikke logge inn lenger.`)) kjor(() => fjernBruker(b.id));
+                    }}
+                    className="knapp knapp-fare py-1 text-xs"
+                  >
+                    Fjern
+                  </button>
+                </div>
+              )}
             </div>
-            <p className="text-sm text-gray-500">{b.epost}</p>
-            {b.id !== megId && (
-              <div className="mt-2 flex gap-4 text-sm">
-                <button
-                  disabled={jobber}
-                  onClick={() => kjor(() => nyttPassordFor(b.id))}
-                  className="text-blue-600 disabled:opacity-50"
-                >
-                  Lag nytt passord
-                </button>
-                <button
-                  disabled={jobber}
-                  onClick={() => {
-                    if (confirm(`Fjerne ${b.navn}? De kan ikke logge inn lenger.`)) kjor(() => fjernBruker(b.id));
-                  }}
-                  className="text-red-600 disabled:opacity-50"
-                >
-                  Fjern
-                </button>
-              </div>
-            )}
           </li>
         ))}
       </ul>
 
-      <h2 className="mt-8 text-sm font-semibold uppercase tracking-wide text-gray-500">Legg til bruker</h2>
-      <form action={(fd) => { setRadsvar({}); leggTil(fd); }} className="mt-3 space-y-3 rounded-lg border p-4">
-        <label className="block">
-          <span className="text-sm font-medium">Navn</span>
-          <input name="navn" required className="mt-1 w-full rounded-lg border p-3 text-base" />
-        </label>
-        <label className="block">
-          <span className="text-sm font-medium">E-post (brukes til innlogging)</span>
-          <input name="epost" type="email" required className="mt-1 w-full rounded-lg border p-3 text-base" />
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name="rolle" value="ADMIN" />
-          Administrator (kan legge til og fjerne brukere)
-        </label>
-        {ny.feil && <p className="text-sm text-red-600">{ny.feil}</p>}
-        <button
-          type="submit"
-          disabled={legger}
-          className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white disabled:opacity-50"
+      <section className="kort mt-8 p-5">
+        <h2 className="seksjonstittel mb-4">Legg til bruker</h2>
+        <form
+          action={(fd) => {
+            setRadsvar({});
+            leggTil(fd);
+          }}
+          className="space-y-4"
         >
-          {legger ? "Legger til …" : "Legg til"}
-        </button>
-      </form>
+          <label className="block">
+            <span className="etikett">Navn</span>
+            <input name="navn" required className="felt" />
+          </label>
+          <label className="block">
+            <span className="etikett">E-post</span>
+            <input name="epost" type="email" required className="felt" />
+            <span className="hjelpetekst mt-1 block">Brukes til innlogging</span>
+          </label>
+          <label className="flex items-start gap-3 rounded-xl border border-zinc-200 px-3.5 py-3 text-sm transition hover:bg-zinc-50">
+            <input type="checkbox" name="rolle" value="ADMIN" className="mt-0.5 size-4 accent-zinc-900" />
+            <span>
+              <span className="font-medium">Administrator</span>
+              <span className="block text-zinc-500">Kan legge til og fjerne brukere</span>
+            </span>
+          </label>
+          {ny.feil && <p className="feiltekst">{ny.feil}</p>}
+          <button type="submit" disabled={legger} className="knapp knapp-hoved w-full">
+            {legger ? "Legger til …" : "Legg til"}
+          </button>
+        </form>
+      </section>
     </>
   );
 }

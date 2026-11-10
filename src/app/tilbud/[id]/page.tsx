@@ -1,14 +1,14 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { krevBruker } from "@/lib/innlogging";
-import { lesGrunnlag, sumEksMva } from "@/lib/prisagent";
-import { STATUS_NAVN, TYPE_NAVN, kr, type Tilbudslinje } from "@/lib/tilbud";
-import { gjorOmTilUtkast } from "../actions";
-import Redigering from "./Redigering";
+import { lesGrunnlag, sumEksMva, type Grunnlag } from "@/lib/prisagent";
+import { TYPE_NAVN, kr, type Tilbudslinje } from "@/lib/tilbud";
 import { lagEpostutkast } from "@/lib/epost";
 import { testadresse } from "@/lib/sending";
+import { Rad, Seksjon, Side, StatusMerke, Varsel } from "@/components/ui";
+import { gjorOmTilUtkast } from "../actions";
 import SendTestKnapp from "../SendTestKnapp";
+import Redigering from "./Redigering";
 
 export default async function VisTilbud({ params }: { params: Promise<{ id: string }> }) {
   await krevBruker();
@@ -32,7 +32,7 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
   const lignende = await db.faktura.findMany({
     where: { fakturanr: { in: grunnlag.lignendeFakturaer.map((f) => f.fakturanr) } },
   });
-  const totalFor = (nr: string) => lignende.find((f) => f.fakturanr === nr)?.totalEksMva;
+  const totaler = Object.fromEntries(lignende.map((f) => [f.fakturanr, f.totalEksMva]));
 
   const linjer: Tilbudslinje[] = tilbud.linjer.map((l) => ({
     type: l.type as Tilbudslinje["type"],
@@ -41,43 +41,52 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
     enhet: l.enhet,
     enhetspris: l.enhetspris,
   }));
+  const sum = sumEksMva(linjer);
+  const totalInklMva = Math.round(sum * 125) / 100;
+
+  const dato = (d: Date) => d.toLocaleDateString("nb-NO", { day: "numeric", month: "long" });
 
   return (
-    <main className="mx-auto max-w-md p-6">
-      <Link href={`/befaring/${befaring.id}`} className="text-sm text-blue-600">
-        ← Befaringen
-      </Link>
-      <h1 className="mt-2 text-2xl font-bold">
-        {erUtkast ? "Tilbudsutkast" : "Tilbud"} til {befaring.kunde.navn}
-      </h1>
-      <p className="text-gray-500">
-        <Status status={tilbud.status} />
-        {tilbud.godkjentAv && ` av ${tilbud.godkjentAv.navn}`} · laget{" "}
-        {tilbud.opprettet.toLocaleDateString("nb-NO")}
-      </p>
-
+    <Side
+      tilbake={{ href: `/befaring/${befaring.id}`, tekst: befaring.kunde.navn }}
+      tittel={erUtkast ? "Tilbudsutkast" : `Tilbud ${tilbud.id}`}
+      undertittel={
+        tilbud.godkjent
+          ? `Godkjent ${dato(tilbud.godkjent)}${tilbud.godkjentAv ? ` av ${tilbud.godkjentAv.navn}` : ""}`
+          : `Laget av prisagenten ${dato(tilbud.opprettet)}`
+      }
+      handling={<StatusMerke status={tilbud.status} />}
+    >
       {erUtkast ? (
         <>
-          <p className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
-            Gå gjennom linjene og rett det som ikke stemmer. Når du er fornøyd, trykker du
-            «Godkjenn tilbudet». Ingenting sendes til kunden ennå.
-          </p>
-          <Redigering
-            tilbudId={tilbud.id}
-            linjer={linjer}
-            timepris={firma?.timepris ?? 950}
-          />
-          <a
-            href={`/tilbud/${tilbud.id}/pdf`}
-            target="_blank"
-            className="mt-3 block text-center text-sm text-blue-600"
-          >
-            Forhåndsvis PDF (lagrede endringer, merket UTKAST)
-          </a>
+          <Varsel className="mb-6">
+            Gå gjennom linjene og rett det som ikke stemmer. Når du er fornøyd, godkjenner du
+            tilbudet. Ingenting sendes til kunden før det.
+          </Varsel>
+          {grunnlag.forutsetninger.length > 0 && <Forutsetninger punkter={grunnlag.forutsetninger} />}
+          <Redigering tilbudId={tilbud.id} linjer={linjer} timepris={firma?.timepris ?? 950} />
+          <div className="mt-3 text-center">
+            <a href={`/tilbud/${tilbud.id}/pdf`} target="_blank" className="knapp knapp-stille text-sm">
+              Forhåndsvis PDF
+            </a>
+          </div>
         </>
       ) : (
         <>
+          {/* Totalen først – det kunden bryr seg mest om */}
+          <div className="kort relative overflow-hidden p-6">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-messing-400/70 to-transparent" />
+            <p className="seksjonstittel">Totalt inkl. mva</p>
+            <p className="tall mt-2 text-4xl font-semibold tracking-[-0.03em]">
+              {kr(totalInklMva)} <span className="text-xl font-medium text-zinc-400">kr</span>
+            </p>
+            <p className="tall mt-1 text-sm text-zinc-500">
+              {kr(sum)} kr eks. mva · {linjer.length} linjer
+            </p>
+          </div>
+
           <Linjetabell linjer={linjer} />
+
           {tilbud.status === "GODKJENT" && (
             <>
               <Sending
@@ -86,13 +95,13 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
                 epost={lagEpostutkast({
                   nummer: tilbud.id,
                   dato: tilbud.godkjent ?? tilbud.opprettet,
-                  totalInklMva: Math.round(sumEksMva(linjer) * 125) / 100,
+                  totalInklMva,
                   firma: { navn: firma?.navn ?? "", epost: firma?.epost ?? null, telefon: firma?.telefon ?? null },
                   kunde: befaring.kunde,
                 })}
               />
-              <form action={gjorOmTilUtkast.bind(null, tilbud.id)} className="mt-3">
-                <button type="submit" className="w-full rounded-lg border py-3 font-semibold">
+              <form action={gjorOmTilUtkast.bind(null, tilbud.id)} className="mt-3 text-center">
+                <button type="submit" className="knapp knapp-stille text-sm">
                   Gjør om til utkast for å endre
                 </button>
               </form>
@@ -101,52 +110,98 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
         </>
       )}
 
-      {/* Agentens begrunnelse – nyttig når du vurderer prisen */}
-      {grunnlag.forutsetninger.length > 0 && (
-        <section className="mt-8 rounded-lg border border-amber-300 bg-amber-50 p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-amber-800">
-            {erUtkast ? "Sjekk før du godkjenner" : "Agentens forutsetninger"}
-          </h2>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-            {grunnlag.forutsetninger.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {tilbud.begrunnelse && (
-        <section className="mt-4 rounded-lg border p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-            Hvordan prisagenten satte prisen
-          </h2>
-          <p className="mt-2">{tilbud.begrunnelse}</p>
-        </section>
-      )}
-
-      {grunnlag.lignendeFakturaer.length > 0 && (
-        <section className="mt-4 rounded-lg border p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-            Bygger på disse fakturaene
-          </h2>
-          <ul className="mt-2 space-y-2 text-sm">
-            {grunnlag.lignendeFakturaer.map((f) => (
-              <li key={f.fakturanr}>
-                <span className="font-medium">#{f.fakturanr}</span>
-                {totalFor(f.fakturanr) != null && (
-                  <span className="text-gray-500"> · {kr(totalFor(f.fakturanr)!)} kr eks. mva</span>
-                )}
-                <p className="text-gray-600">{f.hvorfor}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </main>
+      <Vurdering
+        begrunnelse={tilbud.begrunnelse}
+        grunnlag={grunnlag}
+        totaler={totaler}
+        visForutsetninger={!erUtkast}
+      />
+    </Side>
   );
 }
 
-/** PDF og e-post klar for et godkjent tilbud. Selve sendingen er ikke koblet på ennå. */
+function Forutsetninger({ punkter }: { punkter: string[] }) {
+  return (
+    <Varsel type="advarsel" tittel="Sjekk før du godkjenner" className="mb-6">
+      <ul className="mt-1 space-y-1.5">
+        {punkter.map((f) => (
+          <li key={f} className="flex gap-2.5">
+            <span className="mt-[0.55em] size-1 shrink-0 rounded-full bg-messing-500" />
+            <span>{f}</span>
+          </li>
+        ))}
+      </ul>
+    </Varsel>
+  );
+}
+
+/** Prisagentens begrunnelse og hvilke fakturaer den bygget på – sammenleggbar. */
+function Vurdering({
+  begrunnelse,
+  grunnlag,
+  totaler,
+  visForutsetninger,
+}: {
+  begrunnelse: string | null;
+  grunnlag: Grunnlag;
+  totaler: Record<string, number>;
+  visForutsetninger: boolean;
+}) {
+  if (!begrunnelse && grunnlag.lignendeFakturaer.length === 0) return null;
+  return (
+    <details className="group kort mt-10 overflow-hidden">
+      <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 select-none [&::-webkit-details-marker]:hidden">
+        <span>
+          <span className="seksjonstittel block">Prisagentens vurdering</span>
+          <span className="mt-1 block text-sm text-zinc-500">Hvordan prisen ble satt, og hva den bygger på</span>
+        </span>
+        <span className="text-zinc-400 transition group-open:rotate-180">
+          <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+            <path d="M3.5 6 8 10.5 12.5 6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </summary>
+      <div className="space-y-6 border-t border-zinc-100 px-5 py-5 text-[15px] leading-relaxed">
+        {begrunnelse && <p className="text-zinc-700">{begrunnelse}</p>}
+
+        {visForutsetninger && grunnlag.forutsetninger.length > 0 && (
+          <div>
+            <h3 className="seksjonstittel mb-2">Forutsetninger</h3>
+            <ul className="space-y-1.5 text-sm text-zinc-700">
+              {grunnlag.forutsetninger.map((f) => (
+                <li key={f} className="flex gap-2.5">
+                  <span className="mt-[0.55em] size-1 shrink-0 rounded-full bg-zinc-400" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {grunnlag.lignendeFakturaer.length > 0 && (
+          <div>
+            <h3 className="seksjonstittel mb-2">Bygger på disse jobbene</h3>
+            <ul className="space-y-3 text-sm">
+              {grunnlag.lignendeFakturaer.map((f) => (
+                <li key={f.fakturanr} className="rounded-xl bg-zinc-50 px-4 py-3">
+                  <div className="flex justify-between gap-3">
+                    <span className="font-medium">Faktura {f.fakturanr}</span>
+                    {totaler[f.fakturanr] != null && (
+                      <span className="tall text-zinc-500">{kr(totaler[f.fakturanr])} kr eks. mva</span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-zinc-600">{f.hvorfor}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </details>
+  );
+}
+
+/** PDF og e-post for et godkjent tilbud. Sending til kunden er ikke slått på ennå. */
 function Sending({
   tilbudId,
   epost,
@@ -157,58 +212,44 @@ function Sending({
   testTil: string | null;
 }) {
   return (
-    <section className="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-green-800">Klar til sending</h2>
-      <a
-        href={`/tilbud/${tilbudId}/pdf`}
-        target="_blank"
-        className="mt-3 block rounded-lg bg-white py-3 text-center font-semibold text-blue-700 shadow-sm"
-      >
-        📄 Åpne PDF ({epost.vedlegg})
-      </a>
-
-      <div className="mt-4 rounded-lg bg-white p-3 text-sm shadow-sm">
-        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-          {epost.fra && (
-            <>
-              <dt className="text-gray-500">Fra</dt>
-              <dd>{epost.fra}</dd>
-            </>
-          )}
-          <dt className="text-gray-500">Til</dt>
-          <dd>{epost.til}</dd>
-          <dt className="text-gray-500">Emne</dt>
+    <Seksjon tittel="Klar til sending" className="mt-4">
+      <div className="overflow-hidden rounded-xl border border-zinc-200">
+        <dl className="grid grid-cols-[4.5rem_1fr] gap-x-3 gap-y-1.5 bg-zinc-50/80 px-4 py-3 text-sm">
+          <dt className="text-zinc-500">Til</dt>
+          <dd className="truncate">{epost.til}</dd>
+          <dt className="text-zinc-500">Emne</dt>
           <dd className="font-medium">{epost.emne}</dd>
-          <dt className="text-gray-500">Vedlegg</dt>
-          <dd>{epost.vedlegg}</dd>
         </dl>
-        <p className="mt-3 whitespace-pre-wrap border-t pt-3">{epost.tekst}</p>
+        <p className="border-t border-zinc-200 px-4 py-4 text-sm leading-relaxed whitespace-pre-wrap text-zinc-700">
+          {epost.tekst}
+        </p>
+        <a
+          href={`/tilbud/${tilbudId}/pdf`}
+          target="_blank"
+          className="flex items-center gap-3 border-t border-zinc-200 px-4 py-3 text-sm transition hover:bg-zinc-50"
+        >
+          <span className="inline-flex h-9 w-7 items-center justify-center rounded-md bg-red-50 text-[9px] font-bold tracking-wide text-red-700 ring-1 ring-red-200 ring-inset">
+            PDF
+          </span>
+          <span className="font-medium">{epost.vedlegg}</span>
+          <span className="ml-auto text-zinc-500">Åpne</span>
+        </a>
       </div>
 
       {testTil ? (
         <SendTestKnapp tilbudId={tilbudId} til={testTil} />
       ) : (
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-zinc-500">
           E-post er ikke satt opp (RESEND_API_KEY og TEST_EPOST i .env).
         </p>
       )}
 
-      <button
-        disabled
-        className="mt-4 w-full rounded-lg border border-green-600 py-3 font-semibold text-green-700 opacity-40"
-      >
+      <button disabled className="knapp knapp-sekundaer mt-3 w-full">
         Send til kunden
       </button>
-      <p className="mt-1 text-center text-xs text-gray-500">
-        Sending til kunden er ikke slått på ennå.
-      </p>
-    </section>
+      <p className="mt-1.5 text-center text-xs text-zinc-400">Sending til kunden er ikke slått på ennå</p>
+    </Seksjon>
   );
-}
-
-function Status({ status }: { status: string }) {
-  const farge = status === "UTKAST" ? "text-amber-700" : "text-green-700";
-  return <span className={`font-medium ${farge}`}>{STATUS_NAVN[status] ?? status}</span>;
 }
 
 /** Linjene uten redigering (for godkjente/sendte tilbud). */
@@ -216,36 +257,27 @@ function Linjetabell({ linjer }: { linjer: Tilbudslinje[] }) {
   const sum = sumEksMva(linjer);
   const mva = Math.round(sum * 25) / 100;
   return (
-    <section className="mt-6 rounded-lg border">
-      <table className="w-full text-sm">
-        <tbody>
-          {linjer.map((l, i) => (
-            <tr key={i} className="border-b">
-              <td className="p-3">
-                {l.beskrivelse}
-                <div className="text-xs text-gray-500">
-                  {TYPE_NAVN[l.type] ?? l.type} · {l.antall} {l.enhet} × {kr(l.enhetspris)}
-                </div>
-              </td>
-              <td className="p-3 text-right whitespace-nowrap">{kr(l.antall * l.enhetspris)}</td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td className="px-3 pt-3">Sum eks. mva</td>
-            <td className="px-3 pt-3 text-right whitespace-nowrap">{kr(sum)}</td>
-          </tr>
-          <tr className="text-gray-500">
-            <td className="px-3">Mva 25 %</td>
-            <td className="px-3 text-right whitespace-nowrap">{kr(mva)}</td>
-          </tr>
-          <tr className="font-bold">
-            <td className="px-3 pb-3">Totalt inkl. mva</td>
-            <td className="px-3 pb-3 text-right whitespace-nowrap">{kr(sum + mva)} kr</td>
-          </tr>
-        </tfoot>
-      </table>
-    </section>
+    <Seksjon tittel="Spesifikasjon" className="mt-4" innrykk={false}>
+      <ul className="divide-y divide-zinc-100 border-t border-zinc-100">
+        {linjer.map((l, i) => (
+          <li key={i} className="flex items-start gap-4 px-5 py-3.5">
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] leading-snug">{l.beskrivelse}</p>
+              <p className="tall mt-0.5 text-xs text-zinc-500">
+                {TYPE_NAVN[l.type] ?? l.type} · {l.antall.toLocaleString("nb-NO")} {l.enhet} × {kr(l.enhetspris)}
+              </p>
+            </div>
+            <span className="tall text-[15px] whitespace-nowrap">{kr(l.antall * l.enhetspris)}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="space-y-1.5 border-t border-zinc-200 bg-zinc-50/60 px-5 py-4">
+        <Rad etikett="Sum eks. mva" verdi={kr(sum)} />
+        <Rad etikett="Mva 25 %" verdi={kr(mva)} dempet />
+        <div className="pt-1.5">
+          <Rad etikett="Totalt inkl. mva" verdi={`${kr(sum + mva)} kr`} sterk />
+        </div>
+      </div>
+    </Seksjon>
   );
 }

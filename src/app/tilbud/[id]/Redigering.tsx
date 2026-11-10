@@ -111,118 +111,123 @@ export default function Redigering({
   const linjefeil = visFeil ? (t.linjefeil ?? {}) : {};
 
   return (
-    <form action={sendInn} className="mt-6">
+    <form action={sendInn}>
       <input type="hidden" name="linjer" value={JSON.stringify(tilLagring)} />
 
-      <ul className="space-y-3">
-        {rader.map((r, i) => (
-          <li
-            key={r.nokkel}
-            className={`rounded-lg border p-3 ${linjefeil[i] ? "border-red-400 bg-red-50" : ""}`}
-          >
-            <div className="flex items-center gap-2">
-              <select
-                aria-label="Type"
-                value={r.type}
-                onChange={(e) => oppdater(r.nokkel, { type: e.target.value as Rad["type"] })}
-                className="rounded border bg-white p-2 text-sm"
-              >
-                {LINJETYPER.map((type) => (
-                  <option key={type} value={type}>{TYPE_NAVN[type]}</option>
-                ))}
-              </select>
-              <span className="ml-auto font-medium whitespace-nowrap">
-                {kr(linjesum(tilLagring[i]))}
-              </span>
-              <button
-                type="button"
-                onClick={() => fjern(r.nokkel)}
-                aria-label="Fjern linjen"
-                className="rounded p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
-              >
-                ✕
-              </button>
+      <section className="kort overflow-hidden">
+        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+          <h2 className="seksjonstittel">Linjer</h2>
+          <span className="text-xs text-zinc-400">{rader.length} stk</span>
+        </div>
+        <ul className="divide-y divide-zinc-100 border-t border-zinc-100">
+          {rader.map((r, i) => (
+            <li key={r.nokkel} className={`px-5 py-4 transition ${linjefeil[i] ? "bg-red-50/60" : ""}`}>
+              <div className="flex items-center gap-2">
+                <select
+                  aria-label="Type"
+                  value={r.type}
+                  onChange={(e) => oppdater(r.nokkel, { type: e.target.value as Rad["type"] })}
+                  className="cursor-pointer rounded-lg border-0 bg-zinc-100 py-1.5 pr-7 pl-2.5 text-xs font-medium text-zinc-700 ring-0 transition hover:bg-zinc-200 focus:ring-2 focus:ring-zinc-900/10 focus:outline-none"
+                >
+                  {LINJETYPER.map((type) => (
+                    <option key={type} value={type}>{TYPE_NAVN[type]}</option>
+                  ))}
+                </select>
+                <span className="tall ml-auto text-[15px] font-medium whitespace-nowrap">
+                  {kr(linjesum(tilLagring[i]))}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => fjern(r.nokkel)}
+                  aria-label="Fjern linjen"
+                  className="-mr-1.5 rounded-lg p-1.5 text-zinc-400 transition hover:bg-red-50 hover:text-red-600"
+                >
+                  <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+                    <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+
+              <textarea
+                aria-label="Beskrivelse"
+                value={r.beskrivelse}
+                onChange={(e) => oppdater(r.nokkel, { beskrivelse: e.target.value })}
+                rows={2}
+                placeholder="Beskrivelse (vises for kunden)"
+                className="felt mt-3 resize-y py-2.5 text-[15px] leading-snug"
+              />
+
+              <div className="mt-3 grid grid-cols-[1fr_1fr_1.3fr] gap-2.5">
+                <Tallfelt etikett="Antall" verdi={r.antall} endre={(v) => oppdater(r.nokkel, { antall: v })} />
+                <label className="block">
+                  <span className="text-xs text-zinc-500">Enhet</span>
+                  <input
+                    value={r.enhet}
+                    onChange={(e) => oppdater(r.nokkel, { enhet: e.target.value })}
+                    className="felt mt-1 px-2.5 py-2 text-[15px]"
+                  />
+                </label>
+                <Tallfelt etikett="Pris eks. mva" verdi={r.enhetspris} endre={(v) => oppdater(r.nokkel, { enhetspris: v })} />
+              </div>
+
+              {linjefeil[i] && <p className="feiltekst">{linjefeil[i]}</p>}
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex flex-wrap items-center gap-2 border-t border-zinc-100 bg-zinc-50/60 px-5 py-3.5">
+          <span className="mr-1 text-xs text-zinc-500">Legg til</span>
+          {LINJETYPER.map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => leggTil(type)}
+              className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 ring-1 ring-zinc-200 transition ring-inset hover:bg-zinc-900 hover:text-white hover:ring-zinc-900"
+            >
+              + {TYPE_NAVN[type]}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Fast nederst på skjermen: totalen og knappene */}
+      <div className="sticky bottom-3 z-10 mt-4">
+        <div className="kort px-4 pt-3.5 pb-4 shadow-[0_1px_2px_rgba(24,24,27,0.05),0_20px_40px_-16px_rgba(24,24,27,0.25)]">
+          <div className="flex items-end justify-between gap-4 px-1">
+            <div>
+              <p className="text-xs text-zinc-500">Totalt inkl. mva</p>
+              <p className="tall text-xl font-semibold tracking-tight">{kr(sum + mva)} kr</p>
             </div>
+            <p className="tall pb-0.5 text-right text-xs leading-relaxed text-zinc-500">
+              {kr(sum)} eks. mva
+              <br />
+              mva {kr(mva)}
+            </p>
+          </div>
 
-            <textarea
-              aria-label="Beskrivelse"
-              value={r.beskrivelse}
-              onChange={(e) => oppdater(r.nokkel, { beskrivelse: e.target.value })}
-              rows={2}
-              placeholder="Beskrivelse (vises for kunden)"
-              className="mt-2 w-full rounded border p-2 text-base"
-            />
+          {t.feil && visFeil && <p className="feiltekst px-1">{t.feil}</p>}
 
-            <div className="mt-2 grid grid-cols-3 gap-2">
-              <Tallfelt etikett="Antall" verdi={r.antall} endre={(v) => oppdater(r.nokkel, { antall: v })} />
-              <label className="text-xs text-gray-500">
-                Enhet
-                <input
-                  value={r.enhet}
-                  onChange={(e) => oppdater(r.nokkel, { enhet: e.target.value })}
-                  className="mt-1 w-full rounded border p-2 text-base text-black"
-                />
-              </label>
-              <Tallfelt etikett="Pris eks. mva" verdi={r.enhetspris} endre={(v) => oppdater(r.nokkel, { enhetspris: v })} />
-            </div>
-
-            {linjefeil[i] && <p className="mt-2 text-sm text-red-600">{linjefeil[i]}</p>}
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-3 flex flex-wrap gap-2 text-sm">
-        <span className="py-2 text-gray-500">Legg til:</span>
-        {LINJETYPER.map((type) => (
-          <button
-            key={type}
-            type="button"
-            onClick={() => leggTil(type)}
-            className="rounded-full border px-3 py-2 hover:bg-gray-50"
-          >
-            + {TYPE_NAVN[type]}
-          </button>
-        ))}
-      </div>
-
-      <table className="mt-6 w-full">
-        <tbody>
-          <tr>
-            <td>Sum eks. mva</td>
-            <td className="text-right whitespace-nowrap">{kr(sum)}</td>
-          </tr>
-          <tr className="text-gray-500">
-            <td>Mva 25 %</td>
-            <td className="text-right whitespace-nowrap">{kr(mva)}</td>
-          </tr>
-          <tr className="text-lg font-bold">
-            <td>Totalt inkl. mva</td>
-            <td className="text-right whitespace-nowrap">{kr(sum + mva)} kr</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {t.feil && visFeil && <p className="mt-4 text-sm text-red-600">{t.feil}</p>}
-
-      <div className="mt-6 space-y-3">
-        <button
-          type="submit"
-          name="handling"
-          value="godkjenn"
-          disabled={lagrer}
-          className="w-full rounded-lg bg-green-600 py-4 text-lg font-semibold text-white disabled:opacity-50"
-        >
-          {lagrer ? "Lagrer …" : "Godkjenn tilbudet"}
-        </button>
-        <button
-          type="submit"
-          name="handling"
-          value="lagre"
-          disabled={lagrer || !endret}
-          className="w-full rounded-lg border py-3 font-semibold disabled:opacity-50"
-        >
-          {endret ? "Lagre som utkast" : t.lagret && !t.feil ? "Lagret ✓" : "Ingen endringer"}
-        </button>
+          <div className="mt-3 grid grid-cols-[auto_1fr] gap-2.5">
+            <button
+              type="submit"
+              name="handling"
+              value="lagre"
+              disabled={lagrer || !endret}
+              className="knapp knapp-sekundaer px-4"
+            >
+              {!endret && t.lagret && !t.feil ? "Lagret ✓" : "Lagre utkast"}
+            </button>
+            <button
+              type="submit"
+              name="handling"
+              value="godkjenn"
+              disabled={lagrer}
+              className="knapp knapp-hoved px-4"
+            >
+              {lagrer ? "Lagrer …" : "Godkjenn tilbudet"}
+            </button>
+          </div>
+        </div>
       </div>
     </form>
   );
@@ -231,13 +236,13 @@ export default function Redigering({
 function Tallfelt({ etikett, verdi, endre }: { etikett: string; verdi: string; endre: (v: string) => void }) {
   const ugyldig = verdi.trim() !== "" && !Number.isFinite(lesTall(verdi));
   return (
-    <label className="text-xs text-gray-500">
-      {etikett}
+    <label className="block">
+      <span className="text-xs text-zinc-500">{etikett}</span>
       <input
         inputMode="decimal"
         value={verdi}
         onChange={(e) => endre(e.target.value)}
-        className={`mt-1 w-full rounded border p-2 text-right text-base text-black ${ugyldig ? "border-red-500" : ""}`}
+        className={`felt tall mt-1 px-2.5 py-2 text-right text-[15px] ${ugyldig ? "felt-feil" : ""}`}
       />
     </label>
   );

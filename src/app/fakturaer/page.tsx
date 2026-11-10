@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { krevBruker } from "@/lib/innlogging";
 import Opplasting from "./Opplasting";
 
 const kr = (n: number) => n.toLocaleString("nb-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default async function Fakturaer() {
+  await krevBruker();
   const fakturaer = await db.faktura.findMany({
     orderBy: { fakturanr: "asc" },
     include: { linjer: true },

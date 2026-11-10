@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { krevBruker } from "@/lib/innlogging";
 import { lagTilbudsutkast } from "@/lib/prisagent";
 import { TilbudslinjerSkjema } from "@/lib/tilbud";
 import { hentTilbudsdokument } from "@/lib/tilbudsdokument";
@@ -16,6 +17,7 @@ export async function genererTilbud(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _forrige: GenererTilstand
 ): Promise<GenererTilstand> {
+  await krevBruker();
   let tilbudId: number;
   try {
     tilbudId = await lagTilbudsutkast(befaringId);
@@ -42,6 +44,7 @@ export async function lagreTilbud(
   _forrige: RedigerTilstand,
   formData: FormData
 ): Promise<RedigerTilstand> {
+  const bruker = await krevBruker();
   const tilbud = await db.tilbud.findUnique({ where: { id: tilbudId } });
   if (!tilbud) return { feil: "Fant ikke tilbudet." };
   if (tilbud.status !== "UTKAST")
@@ -76,6 +79,7 @@ export async function lagreTilbud(
       data: {
         status: godkjenn ? "GODKJENT" : "UTKAST",
         godkjent: godkjenn ? new Date() : null,
+        godkjentAvId: godkjenn ? bruker.id : null,
         linjer: { create: res.data },
       },
     }),
@@ -88,9 +92,10 @@ export async function lagreTilbud(
 
 /** Angrer godkjenningen så tilbudet kan endres igjen (bare før det er sendt). */
 export async function gjorOmTilUtkast(tilbudId: number) {
+  await krevBruker();
   const tilbud = await db.tilbud.findUnique({ where: { id: tilbudId } });
   if (tilbud?.status !== "GODKJENT") return;
-  await db.tilbud.update({ where: { id: tilbudId }, data: { status: "UTKAST", godkjent: null } });
+  await db.tilbud.update({ where: { id: tilbudId }, data: { status: "UTKAST", godkjent: null, godkjentAvId: null } });
   revalidatePath(`/tilbud/${tilbudId}`);
   revalidatePath(`/befaring/${tilbud.befaringId}`);
 }
@@ -104,6 +109,7 @@ export type TestsendingTilstand = { feil?: string; sendtTil?: string };
  * Statusen på tilbudet endres ikke.
  */
 export async function sendTestTilMeg(tilbudId: number): Promise<TestsendingTilstand> {
+  await krevBruker();
   const til = testadresse();
   if (!til) return { feil: "TEST_EPOST mangler i innstillingene (.env)." };
 

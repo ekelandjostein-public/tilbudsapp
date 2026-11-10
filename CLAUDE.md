@@ -14,6 +14,7 @@ prosessen på norsk, steg for steg.
 - `npx prisma migrate dev --name <navn>` – etter endring i schema
 - `npx prisma db seed` – legger inn firmaet (Ekeland Elektriske AS, timepris 950)
 - `npm run importer -- fakturaer/20_fakturaer.pdf` – les inn eksempelfakturaer med Claude
+- `npm run ny-bruker -- epost@x.no "Navn"` – lag første administrator (eller nytt passord hvis du er låst ute)
 - `npm run prisagent -- <befaring-id>` (eller `-- "beskrivelse"` for en testbefaring) – lag tilbudsutkast fra terminalen
 
 ## Status
@@ -33,7 +34,15 @@ prosessen på norsk, steg for steg.
      Endrer ikke status. Testet og virker.
    - ⬜ Sending til kunden – bevisst IKKE slått på (knappen er deaktivert). Krever eget domene
      verifisert i Resend; uten det kan Resend bare sende til kontoeierens adresse.
-7. ⬜ Innlogging / flere brukere
+7. ✅ Innlogging / flere brukere (e-post + passord, egen kode – ingen auth-bibliotek)
+   - `src/lib/innlogging.ts`: økter i tabellen `Okt` (bare SHA-256 av nøkkelen lagres),
+     `krevBruker()` / `krevAdmin()` MÅ kalles i alle sider, server actions og ruter
+   - `src/lib/passord.ts`: scrypt-hash; `src/lib/forsok.ts`: maks 5 feil per e-post per 15 min
+   - `src/middleware.ts` sender til `/logg-inn` uten informasjonskapsel (bare bekvemmelighet)
+   - `/brukere` (admin): legg til/fjern brukere, lag midlertidig passord. `/konto`: bytt passord, logg ut
+   - Alle brukere i firmaet deler data. Befaring lagrer `opprettetAv`, tilbud lagrer `godkjentAv`
+   - Ikke gjort: flere firma med adskilte data, «glemt passord» på e-post
+8. ⬜ Legge appen ut på nett (database på nett i stedet for SQLite, https, nøkler hos tjenesten)
 
 ## E-post (Resend)
 - Innstillinger i `.env`: `RESEND_API_KEY`, `EPOST_FRA` (onboarding@resend.dev uten eget domene), `TEST_EPOST`

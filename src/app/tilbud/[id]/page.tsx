@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { krevBruker } from "@/lib/innlogging";
 import { lesGrunnlag, sumEksMva } from "@/lib/prisagent";
 import { STATUS_NAVN, TYPE_NAVN, kr, type Tilbudslinje } from "@/lib/tilbud";
 import { gjorOmTilUtkast } from "../actions";
@@ -10,10 +11,15 @@ import { testadresse } from "@/lib/sending";
 import SendTestKnapp from "../SendTestKnapp";
 
 export default async function VisTilbud({ params }: { params: Promise<{ id: string }> }) {
+  await krevBruker();
   const { id } = await params;
   const tilbud = await db.tilbud.findUnique({
     where: { id: Number(id) },
-    include: { linjer: { orderBy: { id: "asc" } }, befaring: { include: { kunde: true } } },
+    include: {
+      linjer: { orderBy: { id: "asc" } },
+      befaring: { include: { kunde: true } },
+      godkjentAv: true,
+    },
   });
   if (!tilbud) notFound();
 
@@ -45,7 +51,9 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
         {erUtkast ? "Tilbudsutkast" : "Tilbud"} til {befaring.kunde.navn}
       </h1>
       <p className="text-gray-500">
-        <Status status={tilbud.status} /> · laget {tilbud.opprettet.toLocaleDateString("nb-NO")}
+        <Status status={tilbud.status} />
+        {tilbud.godkjentAv && ` av ${tilbud.godkjentAv.navn}`} · laget{" "}
+        {tilbud.opprettet.toLocaleDateString("nb-NO")}
       </p>
 
       {erUtkast ? (

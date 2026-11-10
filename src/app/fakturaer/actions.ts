@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { krevBruker } from "@/lib/innlogging";
 import { importerFakturaPdf, type ImportResultat } from "@/lib/fakturaleser";
 
 export type OpplastingTilstand = { resultat?: ImportResultat; feil?: string };
@@ -8,6 +9,7 @@ export async function lastOppFakturaer(
   _forrige: OpplastingTilstand,
   formData: FormData
 ): Promise<OpplastingTilstand> {
+  await krevBruker();
   const filer = formData.getAll("pdf").filter((f): f is File => f instanceof File && f.size > 0);
   if (filer.length === 0) return { feil: "Velg minst én PDF-fil" };
 

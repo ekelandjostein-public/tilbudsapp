@@ -12,13 +12,39 @@ datasource db {
 
 // Firmaet som bruker appen (logo, timepris osv. brukes i tilbudet)
 model Firma {
-  id        Int     @id @default(autoincrement())
-  navn      String
-  orgnr     String?
-  adresse   String?
-  telefon   String?
-  epost     String?
-  timepris  Float   @default(950) // eks. mva
+  id       Int      @id @default(autoincrement())
+  navn     String
+  orgnr    String?
+  adresse  String?
+  telefon  String?
+  epost    String?
+  timepris Float    @default(950) // eks. mva
+  brukere  Bruker[]
+}
+
+// En som kan logge inn. Alle brukere i samme firma ser de samme kundene og tilbudene.
+model Bruker {
+  id          Int        @id @default(autoincrement())
+  firma       Firma      @relation(fields: [firmaId], references: [id])
+  firmaId     Int
+  navn        String
+  epost       String     @unique // lagres alltid med små bokstaver
+  passordHash String // aldri selve passordet – se src/lib/passord.ts
+  rolle       String     @default("ANSATT") // ADMIN (kan legge til brukere) | ANSATT
+  opprettet   DateTime   @default(now())
+  okter       Okt[]
+  befaringer  Befaring[]
+  godkjente   Tilbud[]
+}
+
+// En innlogging. Nettleseren får en tilfeldig nøkkel i en informasjonskapsel;
+// her lagrer vi bare en «fingeravtrykk» (hash) av den.
+model Okt {
+  id        String   @id // SHA-256 av nøkkelen i informasjonskapselen
+  bruker    Bruker   @relation(fields: [brukerId], references: [id], onDelete: Cascade)
+  brukerId  Int
+  opprettet DateTime @default(now())
+  utloper   DateTime
 }
 
 // Kunden fagmannen er på befaring hos
@@ -40,21 +66,25 @@ model Befaring {
   dato               DateTime
   arbeidsbeskrivelse String
   opprettet          DateTime @default(now())
+  opprettetAv        Bruker?  @relation(fields: [opprettetAvId], references: [id], onDelete: SetNull)
+  opprettetAvId      Int?
   tilbud             Tilbud[]
 }
 
 // Tilbudet agenten foreslår og fagmannen godkjenner
 model Tilbud {
-  id          Int            @id @default(autoincrement())
-  befaring    Befaring       @relation(fields: [befaringId], references: [id])
-  befaringId  Int
-  status      String         @default("UTKAST") // UTKAST | GODKJENT | SENDT | AKSEPTERT | AVSLATT
-  begrunnelse String?        // agentens forklaring på prisen
-  grunnlag    String?        // JSON: hvilke fakturaer prisen bygger på + forutsetninger
-  opprettet   DateTime       @default(now())
-  godkjent    DateTime?      // når fagmannen godkjente – blir tilbudsdatoen på PDF-en
-  sendt       DateTime?
-  linjer      Tilbudslinje[]
+  id           Int            @id @default(autoincrement())
+  befaring     Befaring       @relation(fields: [befaringId], references: [id])
+  befaringId   Int
+  status       String         @default("UTKAST") // UTKAST | GODKJENT | SENDT | AKSEPTERT | AVSLATT
+  begrunnelse  String? // agentens forklaring på prisen
+  grunnlag     String? // JSON: hvilke fakturaer prisen bygger på + forutsetninger
+  opprettet    DateTime       @default(now())
+  godkjent     DateTime? // når fagmannen godkjente – blir tilbudsdatoen på PDF-en
+  godkjentAv   Bruker?        @relation(fields: [godkjentAvId], references: [id], onDelete: SetNull)
+  godkjentAvId Int?
+  sendt        DateTime?
+  linjer       Tilbudslinje[]
 }
 
 model Tilbudslinje {
@@ -65,7 +95,7 @@ model Tilbudslinje {
   beskrivelse String
   antall      Float
   enhet       String // timer, stk, meter ...
-  enhetspris  Float  // eks. mva
+  enhetspris  Float // eks. mva
 }
 
 // Tidligere fakturaer (lest inn fra PDF) som agenten lærer priser fra
@@ -74,10 +104,10 @@ model Faktura {
   fakturanr          String?
   dato               DateTime?
   kundenavn          String?
-  arbeidsbeskrivelse String         // kort oppsummering av jobben
+  arbeidsbeskrivelse String // kort oppsummering av jobben
   totalEksMva        Float
   filnavn            String
-  raatekst           String         // teksten hentet ut av PDF-en
+  raatekst           String // teksten hentet ut av PDF-en
   importert          DateTime       @default(now())
   linjer             Fakturalinje[]
 }

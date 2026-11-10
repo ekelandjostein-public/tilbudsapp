@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { krevBruker } from "@/lib/innlogging";
 import { STATUS_NAVN } from "@/lib/tilbud";
 import GenererKnapp from "@/app/tilbud/GenererKnapp";
 
@@ -9,10 +10,11 @@ export default async function VisBefaring({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await krevBruker();
   const { id } = await params;
   const befaring = await db.befaring.findUnique({
     where: { id: Number(id) },
-    include: { kunde: true, tilbud: { orderBy: { opprettet: "desc" } } },
+    include: { kunde: true, opprettetAv: true, tilbud: { orderBy: { opprettet: "desc" } } },
   });
   if (!befaring) notFound();
   const { kunde } = befaring;
@@ -21,7 +23,10 @@ export default async function VisBefaring({
     <main className="mx-auto max-w-md p-6">
       <Link href="/" className="text-sm text-blue-600">← Alle befaringer</Link>
       <h1 className="mt-2 text-2xl font-bold">Befaring hos {kunde.navn}</h1>
-      <p className="text-gray-500">{befaring.dato.toLocaleDateString("nb-NO")}</p>
+      <p className="text-gray-500">
+        {befaring.dato.toLocaleDateString("nb-NO")}
+        {befaring.opprettetAv && ` · registrert av ${befaring.opprettetAv.navn}`}
+      </p>
 
       <section className="mt-6 rounded-lg border p-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Kunde</h2>

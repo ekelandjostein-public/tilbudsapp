@@ -3,6 +3,7 @@
 
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { krevBruker } from "@/lib/innlogging";
 
 export type SkjemaTilstand = {
   feil?: Record<string, string>;
@@ -13,6 +14,7 @@ export async function opprettBefaring(
   _forrige: SkjemaTilstand,
   formData: FormData
 ): Promise<SkjemaTilstand> {
+  const bruker = await krevBruker();
   const felt = (navn: string) => String(formData.get(navn) ?? "").trim();
 
   const verdier = {
@@ -44,6 +46,7 @@ export async function opprettBefaring(
     data: {
       dato: new Date(verdier.dato),
       arbeidsbeskrivelse: verdier.arbeidsbeskrivelse,
+      opprettetAv: { connect: { id: bruker.id } },
       kunde: {
         create: {
           navn: verdier.navn,

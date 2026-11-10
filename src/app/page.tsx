@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { krevBruker } from "@/lib/innlogging";
 
 // Forsiden: siste befaringer + knapp for ny befaring.
 export default async function Home() {
+  await krevBruker();
   const [firma, befaringer, antallFakturaer] = await Promise.all([
     db.firma.findFirst(),
     db.befaring.findMany({

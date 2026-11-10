@@ -50,6 +50,7 @@ model Tilbud {
   befaringId  Int
   status      String         @default("UTKAST") // UTKAST | GODKJENT | SENDT | AKSEPTERT | AVSLATT
   begrunnelse String?        // agentens forklaring på prisen
+  grunnlag    String?        // JSON: lignende fakturaer, forutsetninger og sikkerhet fra prisagenten
   opprettet   DateTime       @default(now())
   sendt       DateTime?
   linjer      Tilbudslinje[]
@@ -64,6 +65,7 @@ model Tilbudslinje {
   antall      Float
   enhet       String // timer, stk, meter ...
   enhetspris  Float  // eks. mva
+  kilde       String? // hvor prisen kommer fra, f.eks. "faktura 1007" eller "skjønn"
 }
 
 // Tidligere fakturaer (lest inn fra PDF) som agenten lærer priser fra

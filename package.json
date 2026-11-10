@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "importer": "tsx --env-file=.env --tsconfig tsconfig.json scripts/importer.ts"
+    "importer": "tsx --env-file=.env --tsconfig tsconfig.json scripts/importer.ts",
+    "sjekk-fakturaer": "tsx --env-file=.env --tsconfig tsconfig.json scripts/sjekk-fakturaer.ts",
+    "prisagent": "tsx --env-file=.env --tsconfig tsconfig.json scripts/prisagent.ts",
+    "test-prisagent": "tsx --env-file=.env --tsconfig tsconfig.json scripts/test-prisagent.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.7.0",

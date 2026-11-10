@@ -11,6 +11,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { claudeFeil } from "@/lib/claudeFeil";
 
 const Linje = z.object({
   type: z
@@ -47,31 +48,38 @@ Tall skrives på norsk med komma som desimaltegn og mellomrom som tusenskille: �
 Beskrivelser kan gå over to linjer i PDF-en – slå dem sammen.
 Vær forsiktig med «Å betale»-summer: en sum nederst på en side hører ikke nødvendigvis til alle fakturaene på siden.`;
 
-const client = new Anthropic();
+// Lages først når den trengs, så appen kan starte selv om nøkkelen mangler
+let _client: Anthropic | undefined;
+const client = () => (_client ??= new Anthropic());
 
 /** Leser alle fakturaene i én PDF med Claude. */
 export async function lesFakturaPdf(pdf: Buffer): Promise<LestFaktura[]> {
-  const svar = await client.beta.messages.parse({
-    model: "claude-opus-5-5",
-    max_tokens: 16000,
-    output_config: { effort: "low", format: betaZodOutputFormat(Svar) },
-    // Hvis modellen avslår forespørselen, prøver API-et automatisk en annen modell
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
-    system: INSTRUKS,
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "document",
-            source: { type: "base64", media_type: "application/pdf", data: pdf.toString("base64") },
-          },
-          { type: "text", text: "Hent ut alle fakturaene i dette dokumentet." },
-        ],
-      },
-    ],
-  });
+  let svar;
+  try {
+    svar = await client().beta.messages.parse({
+      model: "claude-opus-5-5",
+      max_tokens: 16000,
+      output_config: { effort: "low", format: betaZodOutputFormat(Svar) },
+      // Hvis modellen avslår forespørselen, prøver API-et automatisk en annen modell
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      system: INSTRUKS,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "document",
+              source: { type: "base64", media_type: "application/pdf", data: pdf.toString("base64") },
+            },
+            { type: "text", text: "Hent ut alle fakturaene i dette dokumentet." },
+          ],
+        },
+      ],
+    });
+  } catch (e) {
+    throw claudeFeil(e);
+  }
 
   if (svar.stop_reason === "refusal") throw new Error("Claude ville ikke lese dokumentet.");
   if (svar.stop_reason === "max_tokens") throw new Error("Dokumentet var for langt – del det opp.");

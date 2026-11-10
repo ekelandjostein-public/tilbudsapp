@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import GenererKnapp from "@/app/tilbud/GenererKnapp";
 
 export default async function VisBefaring({
   params,
@@ -10,9 +11,10 @@ export default async function VisBefaring({
   const { id } = await params;
   const befaring = await db.befaring.findUnique({
     where: { id: Number(id) },
-    include: { kunde: true },
+    include: { kunde: true, tilbud: { orderBy: { opprettet: "desc" }, include: { linjer: true } } },
   });
   if (!befaring) notFound();
+  const harFakturaer = (await db.faktura.count()) > 0;
   const { kunde } = befaring;
 
   return (
@@ -35,14 +37,25 @@ export default async function VisBefaring({
         <p className="mt-2 whitespace-pre-wrap">{befaring.arbeidsbeskrivelse}</p>
       </section>
 
-      <button
-        disabled
-        className="mt-6 w-full rounded-lg bg-green-600 py-4 text-lg font-semibold text-white opacity-40"
-        title="Kommer i steg 4"
-      >
-        Generer tilbud
-      </button>
-      <p className="mt-2 text-center text-sm text-gray-400">Prisagenten kobles på i steg 4</p>
+      {befaring.tilbud.length > 0 && (
+        <section className="mt-4 rounded-lg border p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Tilbud</h2>
+          <ul className="mt-2 divide-y">
+            {befaring.tilbud.map((t) => (
+              <li key={t.id}>
+                <Link href={`/tilbud/${t.id}`} className="flex justify-between py-2 text-blue-600">
+                  <span>{t.status} · {t.opprettet.toLocaleDateString("nb-NO")}</span>
+                  <span>
+                    {(t.linjer.reduce((s, l) => s + l.antall * l.enhetspris, 0) * 1.25).toLocaleString("nb-NO", { maximumFractionDigits: 0 })} kr inkl. mva
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <GenererKnapp befaringId={befaring.id} harFakturaer={harFakturaer} />
     </main>
   );
 }

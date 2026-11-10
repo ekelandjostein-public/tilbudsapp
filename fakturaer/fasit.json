@@ -1,0 +1,832 @@
+[
+ {
+  "fakturanr": "1001",
+  "side": 1,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Utkobling og oppkobling av ny varmtvannsbereder 200L",
+    "antall": 3.5,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 3325.0
+   },
+   {
+    "prodnr": "204",
+    "beskrivelse": "Høykapasitets stikkontakt for bereder / fast tilkobling",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 450.0,
+    "sum": 450.0
+   },
+   {
+    "prodnr": "301",
+    "beskrivelse": "Kabel PR 3G2,5 mm²",
+    "antall": 5.0,
+    "enhet": "m",
+    "enhetspris": 48.0,
+    "sum": 240.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring (sone 1)",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   },
+   {
+    "prodnr": "990",
+    "beskrivelse": "Samsvarserklæring og dokumentasjon i Boligmappa",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 350.0,
+    "sum": 350.0
+   }
+  ],
+  "dato": "2026-01-12",
+  "sted": "Stavanger",
+  "oppgittInklMva": 6268.75,
+  "sumEksMva": 5015.0
+ },
+ {
+  "fakturanr": "1002",
+  "side": 1,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Montering av LED-downlights og dimmere i stue",
+    "antall": 5.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 4750.0
+   },
+   {
+    "prodnr": "501",
+    "beskrivelse": "SG WarmSlim LED Downlight 6W Hvit 2700K",
+    "antall": 8.0,
+    "enhet": "stk",
+    "enhetspris": 420.0,
+    "sum": 3360.0
+   },
+   {
+    "prodnr": "510",
+    "beskrivelse": "SG LED-Dimmer 2-pol 315W",
+    "antall": 2.0,
+    "enhet": "stk",
+    "enhetspris": 890.0,
+    "sum": 1780.0
+   },
+   {
+    "prodnr": "302",
+    "beskrivelse": "Kabel PFXP 5G1,5 mm²",
+    "antall": 18.0,
+    "enhet": "m",
+    "enhetspris": 42.0,
+    "sum": 756.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-01-15",
+  "sted": "Sandnes",
+  "sumEksMva": 11296.0
+ },
+ {
+  "fakturanr": "1003",
+  "side": 2,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Montering av elbillader i garasje (Easee Home)",
+    "antall": 4.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 3800.0
+   },
+   {
+    "prodnr": "701",
+    "beskrivelse": "Easee Charge Lite Ladeboks Hvit",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 7490.0,
+    "sum": 7490.0
+   },
+   {
+    "prodnr": "215",
+    "beskrivelse": "Jordfeilautomat 32A 3-pol Type A",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 1250.0,
+    "sum": 1250.0
+   },
+   {
+    "prodnr": "305",
+    "beskrivelse": "Kabel PFXP 4G6 mm²",
+    "antall": 12.0,
+    "enhet": "m",
+    "enhetspris": 98.0,
+    "sum": 1176.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og transport",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-01-18",
+  "sted": "Sola",
+  "oppgittInklMva": 17957.5,
+  "sumEksMva": 14366.0
+ },
+ {
+  "fakturanr": "1004",
+  "side": 2,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Skifte av stikkontakter og lysbrytere på kjøkken",
+    "antall": 2.5,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 2375.0
+   },
+   {
+    "prodnr": "201",
+    "beskrivelse": "RS16/2 Elko Dobbel stikkontakt m/jord Hvit",
+    "antall": 4.0,
+    "enhet": "stk",
+    "enhetspris": 240.0,
+    "sum": 960.0
+   },
+   {
+    "prodnr": "208",
+    "beskrivelse": "RS16/1 Elko Enkel lysbryter RS16-1-PT",
+    "antall": 2.0,
+    "enhet": "stk",
+    "enhetspris": 180.0,
+    "sum": 360.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjørte kilometer",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-01-22",
+  "sted": "Randaberg",
+  "sumEksMva": 4345.0
+ },
+ {
+  "fakturanr": "1005",
+  "side": 3,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Feilsøking og utskifting av defekt jordfeilbryter i sikringsskap",
+    "antall": 2.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 1900.0
+   },
+   {
+    "prodnr": "212",
+    "beskrivelse": "Eaton Jordfeilautomat 16A 2-pol 30mA C-kar",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 820.0,
+    "sum": 820.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og utrykning",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-01-26",
+  "sted": "Stavanger",
+  "oppgittInklMva": 4212.5,
+  "sumEksMva": 3370.0
+ },
+ {
+  "fakturanr": "1006",
+  "side": 3,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Montering av utelys og bevegelsessensor i carport",
+    "antall": 3.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 2850.0
+   },
+   {
+    "prodnr": "530",
+    "beskrivelse": "Norlys Bologna Utelampe LED Sort",
+    "antall": 2.0,
+    "enhet": "stk",
+    "enhetspris": 1150.0,
+    "sum": 2300.0
+   },
+   {
+    "prodnr": "540",
+    "beskrivelse": "Steinels Bevegelsessensor IS140-2",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 790.0,
+    "sum": 790.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring (Sone 2)",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 850.0,
+    "sum": 850.0
+   }
+  ],
+  "dato": "2026-02-01",
+  "sted": "Bryne",
+  "sumEksMva": 6790.0
+ },
+ {
+  "fakturanr": "1007",
+  "side": 4,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Installasjon av varmekabler og termostat på bad 6m²",
+    "antall": 6.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 5700.0
+   },
+   {
+    "prodnr": "601",
+    "beskrivelse": "Nexans Varmekabel TQXP/2R 700W",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 1850.0,
+    "sum": 1850.0
+   },
+   {
+    "prodnr": "610",
+    "beskrivelse": "Microtemp Digital Termostat MTC2 Hvit",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 1450.0,
+    "sum": 1450.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-02-05",
+  "sted": "Stavanger",
+  "oppgittInklMva": 12062.5,
+  "sumEksMva": 9650.0
+ },
+ {
+  "fakturanr": "1008",
+  "side": 4,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Skifte av komfyrstøpsel og montering av komfyravstengning (komfyrvakt)",
+    "antall": 2.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 1900.0
+   },
+   {
+    "prodnr": "405",
+    "beskrivelse": "Mkomfy Komfyrvakt Trådløs Hvit 25A",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 3600.0,
+    "sum": 3600.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-02-10",
+  "sted": "Sandnes",
+  "sumEksMva": 6150.0
+ },
+ {
+  "fakturanr": "1009",
+  "side": 5,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Utskifting av eldre halogenpærer til LED- skinner i butikklokale",
+    "antall": 4.5,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 4275.0
+   },
+   {
+    "prodnr": "520",
+    "beskrivelse": "LED-skinne 3-tenning 2m Hvit",
+    "antall": 3.0,
+    "enhet": "stk",
+    "enhetspris": 890.0,
+    "sum": 2670.0
+   },
+   {
+    "prodnr": "525",
+    "beskrivelse": "LED-spot 28W 3000K for skinne",
+    "antall": 6.0,
+    "enhet": "stk",
+    "enhetspris": 750.0,
+    "sum": 4500.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og frakt",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-02-14",
+  "sted": "Stavanger",
+  "oppgittInklMva": 15118.75,
+  "sumEksMva": 12095.0
+ },
+ {
+  "fakturanr": "1010",
+  "side": 5,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Montering av overspenningsvern og sjekk av tavle",
+    "antall": 2.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 1900.0
+   },
+   {
+    "prodnr": "220",
+    "beskrivelse": "Overspenningsvern Type 2 3-pol TNS/TT",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 1450.0,
+    "sum": 1450.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-02-18",
+  "sted": "Klepp",
+  "sumEksMva": 4000.0
+ },
+ {
+  "fakturanr": "1011",
+  "side": 6,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Legge opp ny kurs til tørketrommel på vaskerom",
+    "antall": 3.5,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 3325.0
+   },
+   {
+    "prodnr": "212",
+    "beskrivelse": "Eaton Jordfeilautomat 16A 2-pol C-kar",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 820.0,
+    "sum": 820.0
+   },
+   {
+    "prodnr": "201",
+    "beskrivelse": "RS16/2 Elko Dobbel stikkontakt Hvit",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 240.0,
+    "sum": 240.0
+   },
+   {
+    "prodnr": "301",
+    "beskrivelse": "Kabel PR 3G2,5 mm²",
+    "antall": 14.0,
+    "enhet": "m",
+    "enhetspris": 48.0,
+    "sum": 672.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-02-22",
+  "sted": "Stavanger",
+  "oppgittInklMva": 7133.75,
+  "sumEksMva": 5707.0
+ },
+ {
+  "fakturanr": "1012",
+  "side": 6,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Montering av LED-strips under kjøkkenskap og i vitrineskap",
+    "antall": 3.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 2850.0
+   },
+   {
+    "prodnr": "550",
+    "beskrivelse": "LED-strip COB 10W/m 3000K IP20 (3 meter)",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 750.0,
+    "sum": 750.0
+   },
+   {
+    "prodnr": "555",
+    "beskrivelse": "LED Driver 24V 60W Dimmbar (Triac)",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 620.0,
+    "sum": 620.0
+   },
+   {
+    "prodnr": "558",
+    "beskrivelse": "Aluminiumsprofil lav type m/mottaker og deksel 2m",
+    "antall": 2.0,
+    "enhet": "stk",
+    "enhetspris": 210.0,
+    "sum": 420.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-02-25",
+  "sted": "Sandnes",
+  "sumEksMva": 5290.0
+ },
+ {
+  "fakturanr": "1013",
+  "side": 7,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Periodisk el-kontroll og tilstandsrapport for enebolig",
+    "antall": 3.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 2850.0
+   },
+   {
+    "prodnr": "995",
+    "beskrivelse": "El-sjekk rapport og registrering i Boligmappa",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 750.0,
+    "sum": 750.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-03-01",
+  "sted": "Sola",
+  "oppgittInklMva": 5312.5,
+  "sumEksMva": 4250.0
+ },
+ {
+  "fakturanr": "1014",
+  "side": 7,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Montering av seriekoblede optiske røykvarslere 230V",
+    "antall": 2.5,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 2375.0
+   },
+   {
+    "prodnr": "410",
+    "beskrivelse": "Kavli Røykvarsler 230V Optisk m/backup batteri",
+    "antall": 4.0,
+    "enhet": "stk",
+    "enhetspris": 680.0,
+    "sum": 2720.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-03-04",
+  "sted": "Stavanger",
+  "sumEksMva": 5745.0
+ },
+ {
+  "fakturanr": "1015",
+  "side": 8,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Installasjon av utvendig stikkontakt for høytrykksspyler/terrasse",
+    "antall": 2.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 1900.0
+   },
+   {
+    "prodnr": "205",
+    "beskrivelse": "Elko Option Utendørs Stikkontakt IP44 Dobbel M/lokk",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 390.0,
+    "sum": 390.0
+   },
+   {
+    "prodnr": "301",
+    "beskrivelse": "Kabel PR 3G2,5 mm² UV-bestandig",
+    "antall": 8.0,
+    "enhet": "m",
+    "enhetspris": 52.0,
+    "sum": 416.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-03-08",
+  "sted": "Sandnes",
+  "oppgittInklMva": 4195.0,
+  "sumEksMva": 3356.0
+ },
+ {
+  "fakturanr": "1016",
+  "side": 8,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Utskifting av eldre sikringsskap til automatiserte jordfeilautomater",
+    "antall": 7.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 6650.0
+   },
+   {
+    "prodnr": "212",
+    "beskrivelse": "Eaton Jordfeilautomat 15A/16A 2-pol",
+    "antall": 8.0,
+    "enhet": "stk",
+    "enhetspris": 820.0,
+    "sum": 6560.0
+   },
+   {
+    "prodnr": "214",
+    "beskrivelse": "Eaton Hovedbryter 2-pol 63A",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 450.0,
+    "sum": 450.0
+   },
+   {
+    "prodnr": "220",
+    "beskrivelse": "Overspenningsvern Type 2",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 1450.0,
+    "sum": 1450.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-03-12",
+  "sted": "Stavanger",
+  "sumEksMva": 15760.0
+ },
+ {
+  "fakturanr": "1017",
+  "side": 9,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Tilkobling av ny baderomsvifte med fuktsensor",
+    "antall": 1.5,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 1425.0
+   },
+   {
+    "prodnr": "560",
+    "beskrivelse": "Flexit Silent Eco Baderomsvifte TH m/fuktsensor",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 1290.0,
+    "sum": 1290.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-03-15",
+  "sted": "Randaberg",
+  "oppgittInklMva": 4206.25,
+  "sumEksMva": 3365.0
+ },
+ {
+  "fakturanr": "1018",
+  "side": 9,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Legge opp strøm og montere pendellamper over spisebord",
+    "antall": 2.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 1900.0
+   },
+   {
+    "prodnr": "510",
+    "beskrivelse": "SG LED-Dimmer 315W Hvit",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 890.0,
+    "sum": 890.0
+   },
+   {
+    "prodnr": "301",
+    "beskrivelse": "Kabel PR 3G1,5 mm² Hvit",
+    "antall": 6.0,
+    "enhet": "m",
+    "enhetspris": 38.0,
+    "sum": 228.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-03-18",
+  "sted": "Sandnes",
+  "sumEksMva": 3668.0
+ },
+ {
+  "fakturanr": "1019",
+  "side": 10,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Skifte av defekte lysrør til LED-rør i kontorbygning",
+    "antall": 3.0,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 2850.0
+   },
+   {
+    "prodnr": "570",
+    "beskrivelse": "Philips CorePro LEDtube 120cm 14,5W 4000K",
+    "antall": 10.0,
+    "enhet": "stk",
+    "enhetspris": 180.0,
+    "sum": 1800.0
+   },
+   {
+    "prodnr": "572",
+    "beskrivelse": "LED-glimtenner for direkte erstatning",
+    "antall": 10.0,
+    "enhet": "stk",
+    "enhetspris": 25.0,
+    "sum": 250.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-03-22",
+  "sted": "Stavanger",
+  "oppgittInklMva": 6937.5,
+  "sumEksMva": 5550.0
+ },
+ {
+  "fakturanr": "1020",
+  "side": 10,
+  "linjer": [
+   {
+    "prodnr": "101",
+    "beskrivelse": "Montering av utvendig lyskaster m/bevegelsessensor ved innkjørsel",
+    "antall": 2.5,
+    "enhet": "time",
+    "enhetspris": 950.0,
+    "sum": 2375.0
+   },
+   {
+    "prodnr": "535",
+    "beskrivelse": "SG Floodlight LED 30W IP65 Sort m/sensor",
+    "antall": 1.0,
+    "enhet": "stk",
+    "enhetspris": 1490.0,
+    "sum": 1490.0
+   },
+   {
+    "prodnr": "301",
+    "beskrivelse": "Kabel PR 3G1,5 mm² Sort",
+    "antall": 10.0,
+    "enhet": "m",
+    "enhetspris": 42.0,
+    "sum": 420.0
+   },
+   {
+    "prodnr": "901",
+    "beskrivelse": "Servicebil og kjøring",
+    "antall": 1.0,
+    "enhet": "oppmøte",
+    "enhetspris": 650.0,
+    "sum": 650.0
+   }
+  ],
+  "dato": "2026-03-26",
+  "sted": "Sola",
+  "sumEksMva": 4935.0
+ }
+]

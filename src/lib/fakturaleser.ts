@@ -47,7 +47,10 @@ Tall skrives på norsk med komma som desimaltegn og mellomrom som tusenskille: �
 Beskrivelser kan gå over to linjer i PDF-en – slå dem sammen.
 Vær forsiktig med «Å betale»-summer: en sum nederst på en side hører ikke nødvendigvis til alle fakturaene på siden.`;
 
-const client = new Anthropic();
+// TILBUD_API_KEY brukes i skyøkter, der plattformen fjerner ANTHROPIC_API_KEY.
+const client = new Anthropic({
+  apiKey: process.env.TILBUD_API_KEY || process.env.ANTHROPIC_API_KEY,
+});
 
 /** Leser alle fakturaene i én PDF med Claude. */
 export async function lesFakturaPdf(pdf: Buffer): Promise<LestFaktura[]> {

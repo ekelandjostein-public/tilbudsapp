@@ -48,9 +48,9 @@ export default async function Home() {
         </ul>
       )}
 
-      <p className="mt-8 text-sm text-gray-400">
-        {antallFakturaer} tidligere fakturaer lest inn
-      </p>
+      <Link href="/fakturaer" className="mt-8 block text-sm text-blue-600">
+        {antallFakturaer} tidligere fakturaer lest inn →
+      </Link>
     </main>
   );
 }

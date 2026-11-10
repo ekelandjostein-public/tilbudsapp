@@ -6,14 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "importer": "tsx --env-file=.env --tsconfig tsconfig.json scripts/importer.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.7.0",
     "@prisma/client": "^6.19.3",
     "next": "15.5.29",
     "prisma": "^6.19.3",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

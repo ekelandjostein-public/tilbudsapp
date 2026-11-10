@@ -6,6 +6,8 @@ import { STATUS_NAVN, TYPE_NAVN, kr, type Tilbudslinje } from "@/lib/tilbud";
 import { gjorOmTilUtkast } from "../actions";
 import Redigering from "./Redigering";
 import { lagEpostutkast } from "@/lib/epost";
+import { testadresse } from "@/lib/sending";
+import SendTestKnapp from "../SendTestKnapp";
 
 export default async function VisTilbud({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -72,6 +74,7 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
             <>
               <Sending
                 tilbudId={tilbud.id}
+                testTil={process.env.RESEND_API_KEY ? testadresse() : null}
                 epost={lagEpostutkast({
                   nummer: tilbud.id,
                   dato: tilbud.godkjent ?? tilbud.opprettet,
@@ -136,7 +139,15 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
 }
 
 /** PDF og e-post klar for et godkjent tilbud. Selve sendingen er ikke koblet på ennå. */
-function Sending({ tilbudId, epost }: { tilbudId: number; epost: ReturnType<typeof lagEpostutkast> }) {
+function Sending({
+  tilbudId,
+  epost,
+  testTil,
+}: {
+  tilbudId: number;
+  epost: ReturnType<typeof lagEpostutkast>;
+  testTil: string | null;
+}) {
   return (
     <section className="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-green-800">Klar til sending</h2>
@@ -166,14 +177,22 @@ function Sending({ tilbudId, epost }: { tilbudId: number; epost: ReturnType<type
         <p className="mt-3 whitespace-pre-wrap border-t pt-3">{epost.tekst}</p>
       </div>
 
+      {testTil ? (
+        <SendTestKnapp tilbudId={tilbudId} til={testTil} />
+      ) : (
+        <p className="mt-4 text-center text-sm text-gray-500">
+          E-post er ikke satt opp (RESEND_API_KEY og TEST_EPOST i .env).
+        </p>
+      )}
+
       <button
         disabled
-        className="mt-4 w-full rounded-lg bg-green-600 py-4 text-lg font-semibold text-white opacity-40"
+        className="mt-4 w-full rounded-lg border border-green-600 py-3 font-semibold text-green-700 opacity-40"
       >
         Send til kunden
       </button>
-      <p className="mt-2 text-center text-sm text-gray-500">
-        Sending på e-post er ikke koblet på ennå – ingenting blir sendt.
+      <p className="mt-1 text-center text-xs text-gray-500">
+        Sending til kunden er ikke slått på ennå.
       </p>
     </section>
   );

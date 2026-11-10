@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { lagTilbudsutkast } from "@/lib/prisagent";
 import { TilbudslinjerSkjema } from "@/lib/tilbud";
+import { hentTilbudsdokument } from "@/lib/tilbudsdokument";
+import { sendEpost, testadresse } from "@/lib/sending";
 
 // --- Generer (steg 4) --------------------------------------------------------
 
@@ -91,4 +93,37 @@ export async function gjorOmTilUtkast(tilbudId: number) {
   await db.tilbud.update({ where: { id: tilbudId }, data: { status: "UTKAST", godkjent: null } });
   revalidatePath(`/tilbud/${tilbudId}`);
   revalidatePath(`/befaring/${tilbud.befaringId}`);
+}
+
+// --- Testsending (steg 6) ----------------------------------------------------
+
+export type TestsendingTilstand = { feil?: string; sendtTil?: string };
+
+/**
+ * Sender tilbudet (e-post + PDF) til fagmannens egen testadresse, IKKE til kunden.
+ * Statusen på tilbudet endres ikke.
+ */
+export async function sendTestTilMeg(tilbudId: number): Promise<TestsendingTilstand> {
+  const til = testadresse();
+  if (!til) return { feil: "TEST_EPOST mangler i innstillingene (.env)." };
+
+  const dok = await hentTilbudsdokument(tilbudId);
+  if (!dok) return { feil: "Fant ikke tilbudet." };
+  if (dok.tilbud.status !== "GODKJENT") return { feil: "Tilbudet må være godkjent først." };
+
+  const { epost } = dok;
+  try {
+    await sendEpost({
+      avsendernavn: (await db.firma.findFirst())?.navn ?? "Tilbudsapp",
+      til,
+      emne: `[TEST] ${epost.emne}`,
+      tekst:
+        `--- TEST: Denne e-posten ville gått til ${epost.til} ---\n\n` + epost.tekst,
+      svarTil: epost.fra,
+      vedlegg: [{ filnavn: epost.vedlegg, innhold: await dok.lagPdf() }],
+    });
+  } catch (e) {
+    return { feil: e instanceof Error ? e.message : "Sendingen feilet." };
+  }
+  return { sendtTil: til };
 }

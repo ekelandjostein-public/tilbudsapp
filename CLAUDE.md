@@ -29,9 +29,16 @@ prosessen på norsk, steg for steg.
 6. 🟨 PDF + e-post til kunde
    - ✅ PDF (`src/lib/tilbudspdf.ts`, pdf-lib) på `/tilbud/[id]/pdf` – merket UTKAST før godkjenning
    - ✅ E-postutkast (`src/lib/epost.ts`) vises på godkjente tilbud
-   - ⬜ Selve sendingen – bevisst IKKE koblet på ennå (eieren vil ikke sende e-post nå).
-     «Send til kunden»-knappen er deaktivert. Status SENDT og `sendt`-dato settes ikke.
+   - ✅ «Send test til meg»: sender e-post + PDF via Resend (`src/lib/sending.ts`) til `TEST_EPOST`.
+     Endrer ikke status. Testet og virker.
+   - ⬜ Sending til kunden – bevisst IKKE slått på (knappen er deaktivert). Krever eget domene
+     verifisert i Resend; uten det kan Resend bare sende til kontoeierens adresse.
 7. ⬜ Innlogging / flere brukere
+
+## E-post (Resend)
+- Innstillinger i `.env`: `RESEND_API_KEY`, `EPOST_FRA` (onboarding@resend.dev uten eget domene), `TEST_EPOST`
+- I skyøkter legger nettverket inn nøkkelen selv: bruk `RESEND_API_KEY=proxy-injected`, og start
+  appen med `NODE_USE_ENV_PROXY=1 npm run dev` (ellers når ikke Node ut til api.resend.com)
 
 ## Kjent om eksempelfakturaene
 `fakturaer/20_fakturaer.pdf` har 2 fakturaer per side, men bare én «Å betale»-sum

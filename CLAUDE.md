@@ -25,5 +25,5 @@ prosessen på norsk, steg for steg.
 7. ⬜ Innlogging / flere brukere
 
 ## Kjent om eksempelfakturaene
-`fakturaer/20_fakturaer.pdf` (ikke i git) har 2 fakturaer per side, men bare én «Å betale»-sum
+`fakturaer/20_fakturaer.pdf` har 2 fakturaer per side, men bare én «Å betale»-sum
 nederst – den hører til den FØRSTE fakturaen på siden. Total regnes derfor alltid fra linjene.

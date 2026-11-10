@@ -73,6 +73,7 @@ export async function lagreTilbud(
       where: { id: tilbudId },
       data: {
         status: godkjenn ? "GODKJENT" : "UTKAST",
+        godkjent: godkjenn ? new Date() : null,
         linjer: { create: res.data },
       },
     }),
@@ -87,7 +88,7 @@ export async function lagreTilbud(
 export async function gjorOmTilUtkast(tilbudId: number) {
   const tilbud = await db.tilbud.findUnique({ where: { id: tilbudId } });
   if (tilbud?.status !== "GODKJENT") return;
-  await db.tilbud.update({ where: { id: tilbudId }, data: { status: "UTKAST" } });
+  await db.tilbud.update({ where: { id: tilbudId }, data: { status: "UTKAST", godkjent: null } });
   revalidatePath(`/tilbud/${tilbudId}`);
   revalidatePath(`/befaring/${tilbud.befaringId}`);
 }

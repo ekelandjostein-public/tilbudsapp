@@ -52,6 +52,7 @@ model Tilbud {
   begrunnelse String?        // agentens forklaring på prisen
   grunnlag    String?        // JSON: hvilke fakturaer prisen bygger på + forutsetninger
   opprettet   DateTime       @default(now())
+  godkjent    DateTime?      // når fagmannen godkjente – blir tilbudsdatoen på PDF-en
   sendt       DateTime?
   linjer      Tilbudslinje[]
 }

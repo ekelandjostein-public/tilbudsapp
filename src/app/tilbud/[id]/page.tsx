@@ -5,6 +5,7 @@ import { lesGrunnlag, sumEksMva } from "@/lib/prisagent";
 import { STATUS_NAVN, TYPE_NAVN, kr, type Tilbudslinje } from "@/lib/tilbud";
 import { gjorOmTilUtkast } from "../actions";
 import Redigering from "./Redigering";
+import { lagEpostutkast } from "@/lib/epost";
 
 export default async function VisTilbud({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -56,15 +57,29 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
             linjer={linjer}
             timepris={firma?.timepris ?? 950}
           />
+          <a
+            href={`/tilbud/${tilbud.id}/pdf`}
+            target="_blank"
+            className="mt-3 block text-center text-sm text-blue-600"
+          >
+            Forhåndsvis PDF (lagrede endringer, merket UTKAST)
+          </a>
         </>
       ) : (
         <>
           <Linjetabell linjer={linjer} />
           {tilbud.status === "GODKJENT" && (
             <>
-              <p className="mt-4 rounded-lg bg-green-50 p-3 text-sm text-green-900">
-                Tilbudet er godkjent. Sending på e-post til {befaring.kunde.epost} kommer i steg 6.
-              </p>
+              <Sending
+                tilbudId={tilbud.id}
+                epost={lagEpostutkast({
+                  nummer: tilbud.id,
+                  dato: tilbud.godkjent ?? tilbud.opprettet,
+                  totalInklMva: Math.round(sumEksMva(linjer) * 125) / 100,
+                  firma: { navn: firma?.navn ?? "", epost: firma?.epost ?? null, telefon: firma?.telefon ?? null },
+                  kunde: befaring.kunde,
+                })}
+              />
               <form action={gjorOmTilUtkast.bind(null, tilbud.id)} className="mt-3">
                 <button type="submit" className="w-full rounded-lg border py-3 font-semibold">
                   Gjør om til utkast for å endre
@@ -117,6 +132,50 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
         </section>
       )}
     </main>
+  );
+}
+
+/** PDF og e-post klar for et godkjent tilbud. Selve sendingen er ikke koblet på ennå. */
+function Sending({ tilbudId, epost }: { tilbudId: number; epost: ReturnType<typeof lagEpostutkast> }) {
+  return (
+    <section className="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-green-800">Klar til sending</h2>
+      <a
+        href={`/tilbud/${tilbudId}/pdf`}
+        target="_blank"
+        className="mt-3 block rounded-lg bg-white py-3 text-center font-semibold text-blue-700 shadow-sm"
+      >
+        📄 Åpne PDF ({epost.vedlegg})
+      </a>
+
+      <div className="mt-4 rounded-lg bg-white p-3 text-sm shadow-sm">
+        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+          {epost.fra && (
+            <>
+              <dt className="text-gray-500">Fra</dt>
+              <dd>{epost.fra}</dd>
+            </>
+          )}
+          <dt className="text-gray-500">Til</dt>
+          <dd>{epost.til}</dd>
+          <dt className="text-gray-500">Emne</dt>
+          <dd className="font-medium">{epost.emne}</dd>
+          <dt className="text-gray-500">Vedlegg</dt>
+          <dd>{epost.vedlegg}</dd>
+        </dl>
+        <p className="mt-3 whitespace-pre-wrap border-t pt-3">{epost.tekst}</p>
+      </div>
+
+      <button
+        disabled
+        className="mt-4 w-full rounded-lg bg-green-600 py-4 text-lg font-semibold text-white opacity-40"
+      >
+        Send til kunden
+      </button>
+      <p className="mt-2 text-center text-sm text-gray-500">
+        Sending på e-post er ikke koblet på ennå – ingenting blir sendt.
+      </p>
+    </section>
   );
 }
 

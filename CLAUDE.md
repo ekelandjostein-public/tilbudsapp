@@ -26,7 +26,11 @@ prosessen på norsk, steg for steg.
 5. ✅ Godkjenningsskjerm (`/tilbud/[id]`, `Redigering.tsx`): rett/legg til/fjern linjer med
    levende summer, lagre som utkast eller godkjenn (status GODKJENT, låst). Kan gjøres om
    til utkast igjen. Reglene for linjer ligger i `src/lib/tilbud.ts` og sjekkes på serveren.
-6. ⬜ PDF + e-post til kunde
+6. 🟨 PDF + e-post til kunde
+   - ✅ PDF (`src/lib/tilbudspdf.ts`, pdf-lib) på `/tilbud/[id]/pdf` – merket UTKAST før godkjenning
+   - ✅ E-postutkast (`src/lib/epost.ts`) vises på godkjente tilbud
+   - ⬜ Selve sendingen – bevisst IKKE koblet på ennå (eieren vil ikke sende e-post nå).
+     «Send til kunden»-knappen er deaktivert. Status SENDT og `sendt`-dato settes ikke.
 7. ⬜ Innlogging / flere brukere
 
 ## Kjent om eksempelfakturaene

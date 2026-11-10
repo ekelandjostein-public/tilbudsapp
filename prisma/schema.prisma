@@ -1,0 +1,92 @@
+// Datamodellen for tilbudsappen.
+// Hver "model" blir en tabell i databasen.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Firmaet som bruker appen (logo, timepris osv. brukes i tilbudet)
+model Firma {
+  id        Int     @id @default(autoincrement())
+  navn      String
+  orgnr     String?
+  adresse   String?
+  telefon   String?
+  epost     String?
+  timepris  Float   @default(950) // eks. mva
+}
+
+// Kunden fagmannen er på befaring hos
+model Kunde {
+  id         Int        @id @default(autoincrement())
+  navn       String
+  adresse    String
+  telefon    String?
+  epost      String
+  opprettet  DateTime   @default(now())
+  befaringer Befaring[]
+}
+
+// Det som fylles inn på befaring
+model Befaring {
+  id                 Int      @id @default(autoincrement())
+  kunde              Kunde    @relation(fields: [kundeId], references: [id])
+  kundeId            Int
+  dato               DateTime
+  arbeidsbeskrivelse String
+  opprettet          DateTime @default(now())
+  tilbud             Tilbud[]
+}
+
+// Tilbudet agenten foreslår og fagmannen godkjenner
+model Tilbud {
+  id          Int            @id @default(autoincrement())
+  befaring    Befaring       @relation(fields: [befaringId], references: [id])
+  befaringId  Int
+  status      String         @default("UTKAST") // UTKAST | GODKJENT | SENDT | AKSEPTERT | AVSLATT
+  begrunnelse String?        // agentens forklaring på prisen
+  opprettet   DateTime       @default(now())
+  sendt       DateTime?
+  linjer      Tilbudslinje[]
+}
+
+model Tilbudslinje {
+  id          Int    @id @default(autoincrement())
+  tilbud      Tilbud @relation(fields: [tilbudId], references: [id], onDelete: Cascade)
+  tilbudId    Int
+  type        String // ARBEID | MATERIELL | KJORING | ANNET
+  beskrivelse String
+  antall      Float
+  enhet       String // timer, stk, meter ...
+  enhetspris  Float  // eks. mva
+}
+
+// Tidligere fakturaer (lest inn fra PDF) som agenten lærer priser fra
+model Faktura {
+  id                 Int            @id @default(autoincrement())
+  fakturanr          String?
+  dato               DateTime?
+  kundenavn          String?
+  arbeidsbeskrivelse String         // kort oppsummering av jobben
+  totalEksMva        Float
+  filnavn            String
+  raatekst           String         // teksten hentet ut av PDF-en
+  importert          DateTime       @default(now())
+  linjer             Fakturalinje[]
+}
+
+model Fakturalinje {
+  id          Int     @id @default(autoincrement())
+  faktura     Faktura @relation(fields: [fakturaId], references: [id], onDelete: Cascade)
+  fakturaId   Int
+  type        String
+  beskrivelse String
+  antall      Float
+  enhet       String
+  enhetspris  Float
+}

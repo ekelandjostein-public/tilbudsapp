@@ -2,29 +2,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { lesGrunnlag, sumEksMva } from "@/lib/prisagent";
-
-const kr = (n: number) =>
-  n.toLocaleString("nb-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-const TYPE_NAVN: Record<string, string> = {
-  ARBEID: "Arbeid",
-  MATERIELL: "Materiell",
-  KJORING: "Kjøring",
-  ANNET: "Annet",
-};
+import { STATUS_NAVN, TYPE_NAVN, kr, type Tilbudslinje } from "@/lib/tilbud";
+import { gjorOmTilUtkast } from "../actions";
+import Redigering from "./Redigering";
 
 export default async function VisTilbud({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const tilbud = await db.tilbud.findUnique({
     where: { id: Number(id) },
-    include: { linjer: true, befaring: { include: { kunde: true } } },
+    include: { linjer: { orderBy: { id: "asc" } }, befaring: { include: { kunde: true } } },
   });
   if (!tilbud) notFound();
 
   const { befaring } = tilbud;
+  const firma = await db.firma.findFirst();
   const grunnlag = lesGrunnlag(tilbud);
-  const sum = sumEksMva(tilbud.linjer);
-  const mva = Math.round(sum * 25) / 100;
+  const erUtkast = tilbud.status === "UTKAST";
 
   // Slå opp de lignende fakturaene så vi kan vise totalen deres
   const lignende = await db.faktura.findMany({
@@ -32,52 +25,74 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
   });
   const totalFor = (nr: string) => lignende.find((f) => f.fakturanr === nr)?.totalEksMva;
 
+  const linjer: Tilbudslinje[] = tilbud.linjer.map((l) => ({
+    type: l.type as Tilbudslinje["type"],
+    beskrivelse: l.beskrivelse,
+    antall: l.antall,
+    enhet: l.enhet,
+    enhetspris: l.enhetspris,
+  }));
+
   return (
     <main className="mx-auto max-w-md p-6">
       <Link href={`/befaring/${befaring.id}`} className="text-sm text-blue-600">
         ← Befaringen
       </Link>
-      <h1 className="mt-2 text-2xl font-bold">Tilbudsutkast til {befaring.kunde.navn}</h1>
+      <h1 className="mt-2 text-2xl font-bold">
+        {erUtkast ? "Tilbudsutkast" : "Tilbud"} til {befaring.kunde.navn}
+      </h1>
       <p className="text-gray-500">
-        Laget av prisagenten {tilbud.opprettet.toLocaleString("nb-NO")} · {tilbud.status}
+        <Status status={tilbud.status} /> · laget {tilbud.opprettet.toLocaleDateString("nb-NO")}
       </p>
 
-      <section className="mt-6 rounded-lg border">
-        <table className="w-full text-sm">
-          <tbody>
-            {tilbud.linjer.map((l) => (
-              <tr key={l.id} className="border-b">
-                <td className="p-3">
-                  {l.beskrivelse}
-                  <div className="text-xs text-gray-500">
-                    {TYPE_NAVN[l.type] ?? l.type} · {l.antall} {l.enhet} × {kr(l.enhetspris)}
-                  </div>
-                </td>
-                <td className="p-3 text-right whitespace-nowrap">{kr(l.antall * l.enhetspris)}</td>
-              </tr>
+      {erUtkast ? (
+        <>
+          <p className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
+            Gå gjennom linjene og rett det som ikke stemmer. Når du er fornøyd, trykker du
+            «Godkjenn tilbudet». Ingenting sendes til kunden ennå.
+          </p>
+          <Redigering
+            tilbudId={tilbud.id}
+            linjer={linjer}
+            timepris={firma?.timepris ?? 950}
+          />
+        </>
+      ) : (
+        <>
+          <Linjetabell linjer={linjer} />
+          {tilbud.status === "GODKJENT" && (
+            <>
+              <p className="mt-4 rounded-lg bg-green-50 p-3 text-sm text-green-900">
+                Tilbudet er godkjent. Sending på e-post til {befaring.kunde.epost} kommer i steg 6.
+              </p>
+              <form action={gjorOmTilUtkast.bind(null, tilbud.id)} className="mt-3">
+                <button type="submit" className="w-full rounded-lg border py-3 font-semibold">
+                  Gjør om til utkast for å endre
+                </button>
+              </form>
+            </>
+          )}
+        </>
+      )}
+
+      {/* Agentens begrunnelse – nyttig når du vurderer prisen */}
+      {grunnlag.forutsetninger.length > 0 && (
+        <section className="mt-8 rounded-lg border border-amber-300 bg-amber-50 p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-amber-800">
+            {erUtkast ? "Sjekk før du godkjenner" : "Agentens forutsetninger"}
+          </h2>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+            {grunnlag.forutsetninger.map((f) => (
+              <li key={f}>{f}</li>
             ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td className="px-3 pt-3">Sum eks. mva</td>
-              <td className="px-3 pt-3 text-right">{kr(sum)}</td>
-            </tr>
-            <tr className="text-gray-500">
-              <td className="px-3">Mva 25 %</td>
-              <td className="px-3 text-right">{kr(mva)}</td>
-            </tr>
-            <tr className="font-bold">
-              <td className="px-3 pb-3">Totalt inkl. mva</td>
-              <td className="px-3 pb-3 text-right whitespace-nowrap">{kr(sum + mva)} kr</td>
-            </tr>
-          </tfoot>
-        </table>
-      </section>
+          </ul>
+        </section>
+      )}
 
       {tilbud.begrunnelse && (
         <section className="mt-4 rounded-lg border p-4">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-            Hvordan prisen er satt
+            Hvordan prisagenten satte prisen
           </h2>
           <p className="mt-2">{tilbud.begrunnelse}</p>
         </section>
@@ -101,23 +116,50 @@ export default async function VisTilbud({ params }: { params: Promise<{ id: stri
           </ul>
         </section>
       )}
-
-      {grunnlag.forutsetninger.length > 0 && (
-        <section className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-amber-800">
-            Sjekk før du sender
-          </h2>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-            {grunnlag.forutsetninger.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <p className="mt-6 text-center text-sm text-gray-400">
-        Redigering og godkjenning kommer i steg 5
-      </p>
     </main>
+  );
+}
+
+function Status({ status }: { status: string }) {
+  const farge = status === "UTKAST" ? "text-amber-700" : "text-green-700";
+  return <span className={`font-medium ${farge}`}>{STATUS_NAVN[status] ?? status}</span>;
+}
+
+/** Linjene uten redigering (for godkjente/sendte tilbud). */
+function Linjetabell({ linjer }: { linjer: Tilbudslinje[] }) {
+  const sum = sumEksMva(linjer);
+  const mva = Math.round(sum * 25) / 100;
+  return (
+    <section className="mt-6 rounded-lg border">
+      <table className="w-full text-sm">
+        <tbody>
+          {linjer.map((l, i) => (
+            <tr key={i} className="border-b">
+              <td className="p-3">
+                {l.beskrivelse}
+                <div className="text-xs text-gray-500">
+                  {TYPE_NAVN[l.type] ?? l.type} · {l.antall} {l.enhet} × {kr(l.enhetspris)}
+                </div>
+              </td>
+              <td className="p-3 text-right whitespace-nowrap">{kr(l.antall * l.enhetspris)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td className="px-3 pt-3">Sum eks. mva</td>
+            <td className="px-3 pt-3 text-right whitespace-nowrap">{kr(sum)}</td>
+          </tr>
+          <tr className="text-gray-500">
+            <td className="px-3">Mva 25 %</td>
+            <td className="px-3 text-right whitespace-nowrap">{kr(mva)}</td>
+          </tr>
+          <tr className="font-bold">
+            <td className="px-3 pb-3">Totalt inkl. mva</td>
+            <td className="px-3 pb-3 text-right whitespace-nowrap">{kr(sum + mva)} kr</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
   );
 }

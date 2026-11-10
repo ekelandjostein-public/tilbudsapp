@@ -23,7 +23,9 @@ prosessen på norsk, steg for steg.
 4. ✅ Prisagent (`src/lib/prisagent.ts`): «Generer tilbud» på befaringen → utkast på `/tilbud/[id]`
    med linjer, begrunnelse, hvilke fakturaer den bygget på og hva som bør sjekkes.
    Arbeid tvinges alltid til firmaets timepris.
-5. ⬜ Godkjenningsskjerm med redigering
+5. ✅ Godkjenningsskjerm (`/tilbud/[id]`, `Redigering.tsx`): rett/legg til/fjern linjer med
+   levende summer, lagre som utkast eller godkjenn (status GODKJENT, låst). Kan gjøres om
+   til utkast igjen. Reglene for linjer ligger i `src/lib/tilbud.ts` og sjekkes på serveren.
 6. ⬜ PDF + e-post til kunde
 7. ⬜ Innlogging / flere brukere
 

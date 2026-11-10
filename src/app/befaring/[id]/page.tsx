@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { STATUS_NAVN } from "@/lib/tilbud";
 import GenererKnapp from "@/app/tilbud/GenererKnapp";
 
 export default async function VisBefaring({
@@ -43,7 +44,7 @@ export default async function VisBefaring({
             {befaring.tilbud.map((t) => (
               <li key={t.id}>
                 <Link href={`/tilbud/${t.id}`} className="text-blue-600">
-                  Tilbud #{t.id} · {t.status} · {t.opprettet.toLocaleDateString("nb-NO")}
+                  Tilbud #{t.id} · {STATUS_NAVN[t.status] ?? t.status} · {t.opprettet.toLocaleDateString("nb-NO")}
                 </Link>
               </li>
             ))}

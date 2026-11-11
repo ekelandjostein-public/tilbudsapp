@@ -19,6 +19,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Tilbudsapp",
   description: "Fra befaring til tilbud",
+  // Når appen legges på hjemskjermen på iPhone: eget navn og ingen Safari-adresselinje
+  appleWebApp: { capable: true, title: "Tilbud", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

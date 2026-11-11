@@ -17,6 +17,7 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Gjelder alt unntatt Next.js sine egne filer og ikonet
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Gjelder alt unntatt Next.js sine egne filer, ikoner og manifestet
+  // (telefonen må kunne hente ikonet selv om du ikke er logget inn)
+  matcher: ["/((?!_next/static|_next/image|.*\\.(?:png|ico|svg|webmanifest)$).*)"],
 };
